@@ -71,19 +71,34 @@ public class Server implements Runnable {
                 out = new PrintWriter(client.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
-                sendMessage("Enter a nickname");
-                nickname = in.readLine();
-                System.out.println("nickname: " + nickname);
-                sendMessage("Welcome " + nickname);
-                System.out.println(in.readLine());
+                sendMessage(PacketHeader.MOVE, "BEGIN COMMUNICATION");
+                while (!done) {
+                    receivePacketHeader();
+                }
             } catch (Exception e) {
                 this.shutdown();
             }
 
         }
 
-        public void sendMessage(String message) {   //Useless rn but will hold error checking and packet selecting later
+        public void sendMessage(PacketHeader header, String message) {   //Useless rn but will hold error checking and packet selecting later
+            out.println(header.toString());
             out.println(message);
+        }
+
+        public void receivePacketHeader() {
+            try {
+                String packetString = in.readLine();
+
+                switch (PacketHeader.valueOf(packetString)) {
+
+                    case MOVE:
+                        String String = in.readLine();
+                        System.out.println(String);
+
+                }
+            } catch (Exception ignored) {}
+
         }
 
         public void shutdown() { //Something has gone wrong or game is over, terminate Client Connection
