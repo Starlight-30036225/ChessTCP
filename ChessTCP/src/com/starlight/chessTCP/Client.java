@@ -1,6 +1,7 @@
 package com.starlight.chessTCP;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -26,7 +27,7 @@ public class Client implements Runnable {
 
             out = new PrintWriter(Boss.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(Boss.getInputStream()));
-
+            System.out.println("Connected to server");
             while (!done) {
                 receivePacketHeader();
             }
@@ -41,17 +42,24 @@ public class Client implements Runnable {
     }
 
     public void receivePacketHeader() {
+            String packetString = readNextString();
+            HandlePacket(PacketHeader.valueOf(packetString));
+
+    }
+
+    public String readNextString(){
         try {
-            String packetString = in.readLine();
+            return in.readLine();
 
-            switch (PacketHeader.valueOf(packetString)) {
+        } catch (Exception ignored) {
+            return null;
+        }
 
-                case MOVE: //MOVE ALL SWITCH CASES TO NEW FUNCTIONS AFTER RESOLVING HEADER
-                    String String = in.readLine();
-                    sendMessage(PacketHeader.MOVE, String);
+    }
 
-            }
-        } catch (Exception ignored) {}
+    private void HandlePacket(PacketHeader packetHeader) {
+            String String = readNextString();
+            sendMessage(PacketHeader.MOVE, String);
 
     }
 
@@ -67,7 +75,7 @@ public class Client implements Runnable {
     }
 
     public static void main(String[] args) {
-        Client client = new Client("127.0.0.1", 9999);
+        PlayerClient  client = new PlayerClient("127.0.0.1", 9999);
         client.run();
     }
 }
