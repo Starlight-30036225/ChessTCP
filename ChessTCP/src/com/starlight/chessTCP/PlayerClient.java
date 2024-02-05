@@ -6,12 +6,18 @@ public class PlayerClient extends Client{
     }
 
 
-    private void HandlePacket(PacketHeader packetHeader) {
-            String String = readNextString();
+    @Override
+    protected void HandlePacket(PacketHeader packetHeader) {
+            //String String = readNextString();
 
-            switch (PacketHeader.valueOf(String)){
+            switch (packetHeader){
+                case WELCOME:
+                    System.out.println("readNextString");
 
+                    sendMessage(PacketHeader.WELCOME, "");
+                    break;
                 case MOVE:
+                    sendMessage(PacketHeader.TURN_PROMPT, "HI");
                     break;
                 case BOARD_STATE:
                     break;
@@ -26,7 +32,6 @@ public class PlayerClient extends Client{
 
 
             }
-            sendMessage(PacketHeader.MOVE, String);
 
     }
 }

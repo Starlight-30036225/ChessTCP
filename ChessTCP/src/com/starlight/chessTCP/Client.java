@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class Client implements Runnable {
+public abstract class Client implements Runnable {
 
     private Socket Boss;
     private BufferedReader in;
@@ -42,9 +42,10 @@ public class Client implements Runnable {
     }
 
     public void receivePacketHeader() {
+        try {
             String packetString = readNextString();
             HandlePacket(PacketHeader.valueOf(packetString));
-
+        } catch (Exception ignored) {}
     }
 
     public String readNextString(){
@@ -57,13 +58,9 @@ public class Client implements Runnable {
 
     }
 
-    private void HandlePacket(PacketHeader packetHeader) {
-            String String = readNextString();
-            sendMessage(PacketHeader.MOVE, String);
-
-    }
 
     public void shutdown() {    //Something has gone wrong, kill self
+        System.out.println("Shutting down");
         try {
             out.close();
             in.close();
@@ -74,8 +71,6 @@ public class Client implements Runnable {
 
     }
 
-    public static void main(String[] args) {
-        PlayerClient  client = new PlayerClient("127.0.0.1", 9999);
-        client.run();
-    }
+
+    protected abstract void HandlePacket(PacketHeader packetHeader);
 }

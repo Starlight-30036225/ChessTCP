@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Server implements Runnable {
+public abstract class Server implements Runnable {
 
     private final ArrayList<ConnectionHandler> clients;
     private ServerSocket boss;
@@ -28,10 +28,10 @@ public class Server implements Runnable {
         try {
             boss = new ServerSocket(port);  //Creates a server socket at port given in constructor
             pool = Executors.newCachedThreadPool();
-
+            int IDCounter = 0;
             while (!done) {
                 Socket client = boss.accept();  //Accepts incoming connection
-                ConnectionHandler handler = new ConnectionHandler(client);  //Binds client to a connection handler
+                ConnectionHandler handler = new ConnectionHandler(client, IDCounter++);  //Binds client to a connection handler, assigns an ID according to
                 clients.add(handler);
 
                 pool.execute(handler);  //Places new connection handler into thread pool to execute seperately
@@ -49,11 +49,14 @@ public class Server implements Runnable {
                 boss.close();
             }
             for (ConnectionHandler ch : clients) {
-                ch.shutdown();
+                ch.CHshutdown();
             }
         } catch (Exception ignored){}
     }
 
+    public abstract void HandlePacket(ConnectionHandler Handler, PacketHeader packetHeader);
+
+    protected abstract void SendWelcomeMessage(ConnectionHandler connectionHandler);
 
     class ConnectionHandler implements Runnable {
 
@@ -62,8 +65,13 @@ public class Server implements Runnable {
         private PrintWriter out;
         private String nickname;
 
-        public ConnectionHandler(Socket client) {
+        private int ID;
+
+        private boolean active;
+
+        public ConnectionHandler(Socket client, int ID) {
             this.client = client;
+            this.ID = ID;
         }
 
         public void run() {
@@ -71,16 +79,26 @@ public class Server implements Runnable {
                 out = new PrintWriter(client.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
-                sendMessage(PacketHeader.MOVE, "BEGIN COMMUNICATION");
+                SendWelcomeMessage(this);
                 while (!done) {
                     receivePacketHeader();
                 }
             } catch (Exception e) {
-                this.shutdown();
+                this.CHshutdown();
             }
 
         }
 
+
+        public String readNextString(){
+            try {
+                return in.readLine();
+
+            } catch (Exception ignored) {
+                return null;
+            }
+
+        }
         public void sendMessage(PacketHeader header, String message) {   //Useless rn but will hold error checking and packet selecting later
             out.println(header.toString());
             out.println(message);
@@ -88,20 +106,14 @@ public class Server implements Runnable {
 
         public void receivePacketHeader() {
             try {
-                String packetString = in.readLine();
+                String packetString = readNextString();
+                HandlePacket(this, PacketHeader.valueOf(packetString));
 
-                switch (PacketHeader.valueOf(packetString)) {
-
-                    case MOVE:
-                        String String = in.readLine();
-                        System.out.println(String);
-
-                }
             } catch (Exception ignored) {}
 
         }
 
-        public void shutdown() { //Something has gone wrong or game is over, terminate Client Connection
+        public void CHshutdown() { //Something has gone wrong or game is over, terminate Client Connection
             try {
                 in.close();
                 out.close();
@@ -114,7 +126,7 @@ public class Server implements Runnable {
     }
 
     public static void main(String[] args) {
-        Server server = new Server(9999);
+        GameServer server = new GameServer(9999);
         server.run();
 
     }
