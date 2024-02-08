@@ -8,22 +8,33 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import static java.awt.Font.*;
+
 public class BoardDisplay {
 
-    public static JFrame frame;
-    public static SimplePiece[][] Board;
-    static Image[] imgList;
+    public boolean White;
 
-    static List<Float> possibleMoves;
+    public  JFrame frame;
+    public  SimplePiece[][] Board;
+     Image[] imgList;
 
-    static SimplePiece SelectedPiece;
+    public  List<String> possibleMoves;
 
-    static int MouseX, MouseY;
-    public BoardDisplay() {
+    SimplePiece SelectedPiece;
+
+    int MouseX, MouseY;
+
+    public final int MARGIN = 32;
+    public final int BOARD_WIDTH = 528;
+    public final int BOARD_HEIGHT = 600;
+
+    public static final int SQUARE_SIZE = 64;
+    public BoardDisplay(boolean white) {
         LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+        this.White = white;
     }
 
-    public static void printMap() {
+    public void printMap() {
 
         ExtractImages();
 
@@ -36,8 +47,7 @@ public class BoardDisplay {
         frame.setVisible(true);
     }
 
-
-    private static void ExtractImages() {
+    private void ExtractImages() {
         BufferedImage BaseImage;
 
         try {
@@ -51,7 +61,6 @@ public class BoardDisplay {
 
         int ind = 0;        //saves the index
 
-        //stolen code
         for (int y = 0; y < 400; y += 200) {
             for (int x = 0; x < 1200; x += 200) {
                 imgList[ind] = BaseImage.getSubimage(x, y, 200, 200).getScaledInstance(64, 64, BufferedImage.SCALE_SMOOTH);
@@ -60,11 +69,11 @@ public class BoardDisplay {
         }
     }
 
-    private static JFrame getFrame() {
+    private JFrame getFrame() {
 
         //sets up JFrame
         JFrame frame = new JFrame();
-        frame.setBounds(200, 100, 528, 600);
+        frame.setBounds(200, 100, BOARD_WIDTH + MARGIN, BOARD_HEIGHT + MARGIN);
         frame.setUndecorated(false);
         frame.setName("CHESS");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -72,12 +81,20 @@ public class BoardDisplay {
         frame.setBackground(Color.LIGHT_GRAY);
         return frame;
     }
-    private static void PaintFrame(JFrame frame) {
+    private void PaintFrame(JFrame frame) {
         JPanel pn = new JPanel() {
             @Override
             public void paint(Graphics g) {
+                g.setFont(new Font("Serif", BOLD, 14));
+
                 boolean white = true;       //FlipFlops
                 for (int Y = 0; Y < 8; Y++) {       //8 rows and 8 cols
+
+                    // add text to label
+                    g.setColor(Color.BLACK);
+                    g.drawString(String.valueOf(Y + 1), MARGIN/2, (int) (Y * 64 + (MARGIN * 2.3)));
+                    g.drawString(String.valueOf((char) ((Y ) + 97)),  (int) (Y * 64 + (MARGIN * 2)),MARGIN/2);
+
                     for (int X = 0; X < 8; X++) {
                         if (white) {
                             g.setColor(Color.YELLOW);
@@ -88,20 +105,12 @@ public class BoardDisplay {
 
                         white = !white;  //flips the flop
 
-                        g.fillRect(X * 64, Y * 64, 64, 64);
+                        g.fillRect(X * 64 + MARGIN, Y * 64 + MARGIN, 64, 64);
+                        Highlight(g,Y,X);
                     }
                     white = !white;
                 }
                 DrawPieces(g);
-
-                //Draws the info bar at the bottom
-
-                g.setColor(Color.BLACK);
-                //g.drawString("White: " + Board.getWhiteState(), 140, 540);
-                //g.drawString("Black: " + Board.getBlackState(), 300, 540);
-                //g.drawString((Board.whitesTurn ? "White's": "Black's") + " turn.", 40, 540);
-                g.setColor(Color.WHITE);
-
             }
 
 
@@ -116,7 +125,7 @@ public class BoardDisplay {
                             g.drawImage(imgList[imageVal], MouseX, MouseY, this);
                         }
                         else{
-                            g.drawImage(imgList[imageVal], p.getX() * 64, p.getY() * 64, this);
+                            g.drawImage(imgList[imageVal], p.getX() * SQUARE_SIZE + MARGIN, p.getY() * SQUARE_SIZE+MARGIN, this);
                         }
 
                     }
@@ -128,7 +137,7 @@ public class BoardDisplay {
         frame.add(pn);
     }
 
-    private void LoadMapFromNotation(String Notation) {
+    public void LoadMapFromNotation(String Notation) {
         Board = new SimplePiece[8][8];    //Initialises the Pieces map
         int x = 0;                      //Starts at 0,0 (top left)
         int y = 0;
@@ -157,6 +166,23 @@ public class BoardDisplay {
 
         }
     }
+
+    private void Highlight(Graphics g, int Y, int X) {
+
+        if(possibleMoves != null && possibleMoves.contains(X + "" + Y)){
+            Color HighlightColor;
+
+            HighlightColor = (this.White == SelectedPiece.white)? new Color(0, 200, 0, 99) : new Color(200, 0, 0, 99) ;
+            g.setColor(HighlightColor);
+            if (Board[X][Y] == null) {
+                g.fillOval((X * SQUARE_SIZE + (MARGIN + 20)), (Y * SQUARE_SIZE + MARGIN + 20), 24, 24);
+            }
+            else{
+                g.fillOval(X * SQUARE_SIZE + MARGIN + 10, Y * SQUARE_SIZE + MARGIN + 10, 44, 44);
+            }
+        }
+    }
+
 }
 
 class SimplePiece{
@@ -187,8 +213,6 @@ class SimplePiece{
 
     public String getLocation(){
 
-        char rank = (char) (x + 97);
-
-        return rank + Integer.toString(y);
+        return x + "" + y;
     }
 }

@@ -8,14 +8,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="174d0ed8-668b-411d-8b4e-0259eb6b5687" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PieceEnum.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/Piece.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/PacketHeader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PacketHeader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/Server.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -96,25 +94,30 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerClient.java</url>
-          <line>10</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/Client.java</url>
           <line>62</line>
           <option name="timeStamp" value="8" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/Client.java</url>
-          <line>45</line>
-          <option name="timeStamp" value="9" />
+          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/Piece.java</url>
+          <line>126</line>
+          <option name="timeStamp" value="25" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/Piece.java</url>
+          <line>118</line>
+          <option name="timeStamp" value="31" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/Piece.java</url>
+          <line>54</line>
+          <option name="timeStamp" value="32" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/ChessTCP$ClientRuntime.ic" NAME="ClientRuntime Coverage Results" MODIFIED="1706540280721" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
     <SUITE FILE_PATH="coverage/ChessTCP$ClientRuntime_2.ic" NAME="ClientRuntime-2 Coverage Results" MODIFIED="1706540281843" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+    <SUITE FILE_PATH="coverage/ChessTCP$ClientRuntime.ic" NAME="ClientRuntime Coverage Results" MODIFIED="1707250367406" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
 </project>
