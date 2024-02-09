@@ -1,7 +1,6 @@
 package com.starlight.chessTCP;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public abstract class Piece {
@@ -33,10 +32,32 @@ public abstract class Piece {
 
     public static Piece CreatePiece(char type, int x, int y, boolean white) {
 
-        return new Pawn(type,x,y,white);
+        switch (Character.toLowerCase(type)) {
+            case 'p' -> {
+                return new Pawn(type, x, y, white);
+            }
+            case 'n' -> {
+                return new Knight(type, x, y, white);
+            }
+            case 'b' -> {
+                return new Bishop(type, x, y, white);
+            }
+            case 'r' -> {
+                return new Rook(type, x, y, white);
+            }
+            case 'q' -> {
+                return new Queen(type, x, y, white);
+            }
+            case 'k' -> {
+                return new King(type, x, y, white);
+            }
+            default -> {
+                return null;
+            }
+        }
     }
 
-    public static boolean ValidateMove(Piece piece, Piece[][] board, int x, int y, List<String> Moves) {
+    public boolean ValidateMove(Piece piece, Piece[][] board, int x, int y, List<String> Moves) {
         if (!(x > 7 || x < 0 || y> 7 || y < 0)) {        //Checks the location is in range
             if (board[x][y] != null && board[x][y].white == piece.white) {return false;}  //If a piece in location is same colour, cant move there
             Moves.add(x + "" + y);
@@ -51,141 +72,94 @@ interface Diagonal{
     static List<String> GetPossibleMoves(Piece piece, Piece[][] board) {
 
         List<String> moves = new ArrayList<>(); //return val
+        int testx = 0;
+        int testy = 0;
+        int distance = 0;
         {   //right
-            for (int i = 1; i < 8; i++) { //Up in both axis
-                if(piece.x + i > 7 || piece.y + i > 7){break;}  //Feels very illegal, gatekeeping
 
-                Piece temp = board[piece.x + i][piece.y + i];
+            do {
+                distance++;
+                testx = piece.x+distance;
+                testy = piece.y+distance;
+            }while (CheckEndOfPath(piece,board,testx,testy, moves));
 
-                if (temp != null && temp.white == piece.white) {
-                    break;      //The piece here is the same colour, cant move.
-                }
 
-                moves.add((piece.x + i) + "" + (piece.y + i)); //can move here
-
-                if (temp != null) {
-                    break;      //opposite colour, take
-                }
-            }
-            for (int i = 1; i < 8; i++) {    //up x , down Y
-                if(piece.x + i > 7 || piece.y - i < 0) {break;}  //Feels very illegal, gatekeeping
-
-                Piece temp = board[piece.x + i][piece.y - i];
-
-                if (temp != null && temp.white == piece.white) {
-                    break;      //The piece here is the same colour, cant move.
-                }
-
-                moves.add((piece.x + i) + "" + (piece.y - i)); //can move here, its an empty space
-
-                if (temp != null) {
-                    break;      //The piece here can be taken, but must stop here.
-                }
-            }
+            distance = 0;
+            do {
+                distance++;
+                testx = piece.x+distance;
+                testy = piece.y-distance;
+            }while (CheckEndOfPath(piece,board,testx,testy, moves));
         }
 
         {   //left
-            for (int i = 1; i < 8; i++) { //Up in both axis
-                if(piece.x - i < 0 || piece.y + i > 7){break;}  //Feels very illegal, gatekeeping
+            distance = 0;
+            do {
+                distance++;
+                testx = piece.x-distance;
+                testy = piece.y+distance;
+            }while (CheckEndOfPath(piece,board,testx,testy, moves));
 
-                Piece temp = board[piece.x - i][piece.y + i];
 
-                if (temp != null && temp.white == piece.white) {
-                    break;      //The piece here is the same colour, cant move.
-                }
-
-                moves.add((piece.x - i) + "" + (piece.y + i)); //can move here
-
-                if (temp != null) {
-                    break;      //opposite colour, take
-                }
-            }
-            for (int i = 1; i < 8; i++) {    //up x , down Y
-                if(piece.x - i < 0|| piece.y - i < 0){break;}  //Feels very illegal, gatekeeping
-                Piece temp = board[piece.x - i][piece.y - i];
-
-                if (temp != null && temp.white == piece.white) {
-                    break;      //The piece here is the same colour, cant move.
-                }
-
-                moves.add((piece.x - i) + "" + (piece.y - i)); //can move here, its an empty space
-
-                if (temp != null) {
-                    break;      //The piece here can be taken, but must stop here.
-                }
-            }
+            distance = 0;
+            do {
+                distance++;
+                testx = piece.x-distance;
+                testy = piece.y-distance;
+            }while (CheckEndOfPath(piece,board,testx,testy, moves));
 
         }
         return moves;
     }
+    private static boolean CheckEndOfPath(Piece piece, Piece[][] board, int x, int y, List<String> Moves) {
+        return piece.ValidateMove(piece, board, x, y, Moves) &&
+                (board[x][y] == null);  //If it gets here, move is valid. If space is not null, a piece is being taken so return false
+    }
 }
 
 interface Straight{
-    static List<String> GetPossibleMoves(Piece piece, Piece[][] board){
+    static List<String> GetPossibleMoves(Piece piece, Piece[][] board) {
+
         List<String> moves = new ArrayList<>(); //return val
-        {   //horizontal
-            for (int i = piece.x + 1; i < 8; i++) { //To the right of the board
+        int testx = 0;
+        int testy = 0;
+        int distance = 0;
+        do {
+            distance++;
+            testx = piece.x + distance;
+            testy = piece.y;
+        } while (CheckEndOfPath(piece, board, testx, testy, moves));
 
-                Piece temp = board[i][piece.y];
 
-                if (temp != null && temp.white == piece.white) {
-                    break;      //The piece here is the same colour, cant move.
-                }
+        distance = 0;
+        do {
+            distance++;
+            testx = piece.x - distance;
+            testy = piece.y;
+        } while (CheckEndOfPath(piece, board, testx, testy, moves));
 
-                moves.add((i) + "" + piece.y); //can move here
 
-                if (temp != null) {
-                    break;      //opposite colour, take
-                }
-            }
-            for (int i = piece.x - 1; i > -1; i--) {    //To the left of the board
+        distance = 0;
+        do {
+            distance++;
+            testx = piece.x;
+            testy = piece.y + distance;
+        } while (CheckEndOfPath(piece, board, testx, testy, moves));
 
-                Piece temp = board[i][piece.y];
 
-                if (temp != null && temp.white == piece.white) {
-                    break;      //The piece here is the same colour, cant move.
-                }
+        distance = 0;
+        do {
+            distance++;
+            testx = piece.x;
+            testy = piece.y - distance;
+        } while (CheckEndOfPath(piece, board, testx, testy, moves));
 
-                moves.add((i) + "" + piece.y); //can move here, its an empty space
-
-                if (temp != null) {
-                    break;      //The piece here can be taken, but must stop here.
-                }
-            }
-        }
-
-        {   //vertical
-            for (int i = piece.y + 1; i < 8; i++) { //To the right of the board
-
-                Piece temp = board[piece.x][i];
-
-                if (temp != null && temp.white == piece.white) {
-                    break;      //The piece here is the same colour, cant move.
-                }
-
-                moves.add((piece.x) + "" + i); //can move here
-
-                if (temp != null) {
-                    break;      //opposite colour, take
-                }
-            }
-            for (int i = piece.y - 1; i > -1; i--) {    //To the left of the board
-
-                Piece temp = board[piece.x][i];
-
-                if (temp != null && temp.white == piece.white) {
-                    break;      //The piece here is the same colour, cant move.
-                }
-
-                moves.add((piece.x) + "" + i); //can move here, its an empty space
-
-                if (temp != null) {
-                    break;      //The piece here can be taken, but must stop here.
-                }
-            }
-
-        }
         return moves;
+    }
+
+    private static boolean CheckEndOfPath(Piece piece, Piece[][] board, int x, int y, List<String> Moves) {
+        return piece.ValidateMove(piece, board, x, y, Moves) &&
+                (board[x][y] == null);  //If it gets here, move is valid. If space is not null, a piece is being taken so return false
     }
 }
 
@@ -242,12 +216,13 @@ class Pawn extends Piece{
     @Override
     public List<String> GetPossibleMoves(Piece[][] board) {
         List<String> Moves = new ArrayList<>();
-        if (ValidateMove(this, board, x, y+ direction, Moves)) {
+        if (board[x][y+ direction] == null &&
+                ValidateMove(this, board, x, y+ direction, Moves)) {
             Moves.add(x + "" + (y + direction));
 
         }
         //over stuffed can probs simplify
-        if (FirstMove && board[x][y+ direction] == null &&
+        if (FirstMove && board[x][y+ direction] == null && board[x][y+ 2 * direction] == null &&
                 ValidateMove(this, board, x, y + direction * 2, Moves)) {
             Moves.add(x + "" + (y + direction * 2));
         }

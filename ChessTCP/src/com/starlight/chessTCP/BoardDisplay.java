@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.awt.Font.*;
@@ -30,8 +31,11 @@ public class BoardDisplay {
 
     public static final int SQUARE_SIZE = 64;
     public BoardDisplay(boolean white) {
-        LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
         this.White = white;
+        possibleMoves = new ArrayList<>();
+        LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+
+
     }
 
     public void printMap() {
@@ -51,7 +55,7 @@ public class BoardDisplay {
         BufferedImage BaseImage;
 
         try {
-            BaseImage = ImageIO.read(new File("src/Resources/chess.png"));
+            BaseImage = ImageIO.read(new File("src/Resources/chess2.png"));
         } catch (IOException e) {
             System.out.println("Couldn't find image");
             throw new RuntimeException(e);
@@ -86,18 +90,22 @@ public class BoardDisplay {
             @Override
             public void paint(Graphics g) {
                 g.setFont(new Font("Serif", BOLD, 14));
-
+                String rank;
+                String file;
                 boolean white = true;       //FlipFlops
                 for (int Y = 0; Y < 8; Y++) {       //8 rows and 8 cols
 
                     // add text to label
                     g.setColor(Color.BLACK);
-                    g.drawString(String.valueOf(Y + 1), MARGIN/2, (int) (Y * 64 + (MARGIN * 2.3)));
-                    g.drawString(String.valueOf((char) ((Y ) + 97)),  (int) (Y * 64 + (MARGIN * 2)),MARGIN/2);
+                    rank = String.valueOf(White? (Y + 1) : 8 - Y);
+                    file = String.valueOf(White? (char) ((Y ) + 97) : (char) ((7 - Y ) + 97));
+
+                    g.drawString(rank, MARGIN/2, (int) (Y * 64 + (MARGIN * 2.3)));
+                    g.drawString(file, (Y * 64 + (MARGIN * 2)),MARGIN/2);
 
                     for (int X = 0; X < 8; X++) {
                         if (white) {
-                            g.setColor(Color.YELLOW);
+                            g.setColor(Color.magenta);
 
                         } else {
                             g.setColor(Color.PINK);
@@ -141,6 +149,8 @@ public class BoardDisplay {
         Board = new SimplePiece[8][8];    //Initialises the Pieces map
         int x = 0;                      //Starts at 0,0 (top left)
         int y = 0;
+        if (!this.White) {Notation = new StringBuilder(Notation).reverse().toString();}      //This will flip the notation to show black at the bottom
+
 
         for (Character c :               //Iterates through every character in the notation string
                 Notation.toCharArray()) {
@@ -168,11 +178,15 @@ public class BoardDisplay {
     }
 
     private void Highlight(Graphics g, int Y, int X) {
-
+        if (!this.White) {
+           // for (int i = 0; i < this.possibleMoves.size() - 1; i++) {
+           //     possibleMoves.set(i, FlipCoords(possibleMoves.get(i)));
+           // }
+        }
         if(possibleMoves != null && possibleMoves.contains(X + "" + Y)){
             Color HighlightColor;
 
-            HighlightColor = (this.White == SelectedPiece.white)? new Color(0, 200, 0, 99) : new Color(200, 0, 0, 99) ;
+            HighlightColor = (this.White == SelectedPiece.white)? new Color(0, 200, 0, 200) : new Color(200, 0, 0, 200) ;
             g.setColor(HighlightColor);
             if (Board[X][Y] == null) {
                 g.fillOval((X * SQUARE_SIZE + (MARGIN + 20)), (Y * SQUARE_SIZE + MARGIN + 20), 24, 24);
@@ -183,6 +197,25 @@ public class BoardDisplay {
         }
     }
 
+    public String FlipCoords(String Coords){
+
+        int x = Character.getNumericValue(Coords.charAt(0)) + 1;
+        int y = Character.getNumericValue(Coords.charAt(1)) + 1;
+        x = (9 - x) ;
+        y = (9 - y) ;
+        x--;
+        y--;
+
+        return x + "" + y;
+    }
+
+    public void LoadPossibleMoves(List<String> newMoves){
+        possibleMoves.clear();
+        for (String s:
+             newMoves) {
+            possibleMoves.add(this.White? s : FlipCoords(s));
+        }
+    }
 }
 
 class SimplePiece{

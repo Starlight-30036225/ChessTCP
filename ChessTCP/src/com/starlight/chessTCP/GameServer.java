@@ -65,8 +65,8 @@ class GameMaster {
 
     Piece[][] board;
     public GameMaster(){
-        LoadMapFromNotation("rnbqkbnr/8/8/3rR3/3Rr3/8/8/RNBQKBNR");
-
+        LoadMapFromNotation("rnbqkbnr/1pppppp1/8/3rR3/3Rr3/8/7P/RNBQKBNR");
+        //LoadMapFromNotation("8/4q3/8/44/8/8/5R2/8");
     }
 
     private void LoadMapFromNotation(String Notation) {

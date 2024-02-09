@@ -14,6 +14,8 @@ public class PlayerMaster {
     PlayerClient client;
     private ExecutorService pool;
 
+    boolean requestNewPossibles = true;
+
     public PlayerMaster() {
         pool = Executors.newCachedThreadPool();
         client = new PlayerClient("127.0.0.1", 9999, this);
@@ -31,11 +33,12 @@ public class PlayerMaster {
     }
 
     public void receivePossibleMoves(List<String> possibleMoves) {
-        Board.possibleMoves = possibleMoves;
+        Board.LoadPossibleMoves(possibleMoves);
         Board.frame.repaint();
     }
 
     public void SetUpMouseListeners(JFrame frame) {
+
         frame.addMouseListener(new MouseInputListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
@@ -55,7 +58,7 @@ public class PlayerMaster {
             @Override
             public void mousePressed(MouseEvent e) {
                 //Used for dragging
-
+                if (!requestNewPossibles) { return;}
                 //gets current mouse pos
                 int MouseX = Board.MouseX = e.getX();
                 int MouseY = Board.MouseY = e.getY();
@@ -80,17 +83,23 @@ public class PlayerMaster {
                 if (Board.SelectedPiece == null) {return;}      //not clicking a piece
 
                 //Sends piece to server
-                client.sendMessage(PacketHeader.SELECT_PIECE, Board.SelectedPiece.getLocation());
+                String Location = Board.SelectedPiece.getLocation();
+                if (!Board.White) {Location = Board.FlipCoords(Location);}
+
+                client.sendMessage(PacketHeader.SELECT_PIECE, Location);
+                requestNewPossibles = false;
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
+
                 if (Board.SelectedPiece == null) {return;}
                 //Board.Move(Board.SelectedPiece.getX(),Board.SelectedPiece.getY(),(e.getX()/64),(e.getY()/64));
                 client.sendMessage(PacketHeader.MOVE, Board.SelectedPiece.getLocation());
                 Board.SelectedPiece =null;
-                Board.possibleMoves = null;
+                Board.possibleMoves.clear();
                 Board.frame.repaint();
+                requestNewPossibles = true;
             }
 
             @Override
