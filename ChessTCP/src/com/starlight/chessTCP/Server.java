@@ -109,7 +109,9 @@ public abstract class Server implements Runnable {
                 String packetString = readNextString();
                 HandlePacket(this, PacketHeader.valueOf(packetString));
 
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                System.out.println(e);
+            }
 
         }
 

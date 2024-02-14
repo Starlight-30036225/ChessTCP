@@ -19,7 +19,8 @@ public class GameServer extends Server{
                 System.out.println("Connected");
                 break;
             case MOVE:
-                Handler.sendMessage(PacketHeader.TURN_PROMPT, "HI");
+                Handler.readNextString();
+                //Handler.sendMessage(PacketHeader.TURN_PROMPT, "HI");
                 break;
             case BOARD_STATE:
                 break;
@@ -65,8 +66,9 @@ class GameMaster {
 
     Piece[][] board;
     public GameMaster(){
-        LoadMapFromNotation("rnbqkbnr/1pppppp1/8/3rR3/3Rr3/8/7P/RNBQKBNR");
-        //LoadMapFromNotation("8/4q3/8/44/8/8/5R2/8");
+        LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+        //LoadMapFromNotation("rnbqkbnr/1pppppp1/8/3rR3/3Rr3/8/7P/RNBQKBNR");
+        //LoadMapFromNotation("k/8/8/6b1/8/4KP1r/6N1/8");
     }
 
     private void LoadMapFromNotation(String Notation) {
@@ -132,6 +134,6 @@ class GameMaster {
     public List<String> getPossibleMoves(int x, int y){
 
         Piece temp = board[x][y];
-        return temp.GetPossibleMoves(board);
+        return temp.GetLegalMoves(board);
     }
 }
