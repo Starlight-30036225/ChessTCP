@@ -29,7 +29,7 @@ public class BoardDisplay {
     public final int BOARD_WIDTH = 528;
     public final int BOARD_HEIGHT = 600;
 
-    public static final int SQUARE_SIZE = 64;
+    public final int SQUARE_SIZE = 64;
     public BoardDisplay(boolean white) {
         this.White = white;
         possibleMoves = new ArrayList<>();

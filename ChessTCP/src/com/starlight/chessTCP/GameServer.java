@@ -1,5 +1,6 @@
 package com.starlight.chessTCP;
 
+import java.sql.Connection;
 import java.util.List;
 
 public class GameServer extends Server{
@@ -19,8 +20,7 @@ public class GameServer extends Server{
                 System.out.println("Connected");
                 break;
             case MOVE:
-                Handler.readNextString();
-                //Handler.sendMessage(PacketHeader.TURN_PROMPT, "HI");
+                HandleMove(Handler);
                 break;
             case BOARD_STATE:
                 break;
@@ -38,6 +38,19 @@ public class GameServer extends Server{
         }
     }
 
+    private void HandleMove(ConnectionHandler Handler){
+        String Composite = Handler.readNextString();
+        int Piecex = Character.getNumericValue(Composite.charAt(0));
+        int Piecey = Character.getNumericValue(Composite.charAt(1));
+
+        int Movex = Character.getNumericValue(Composite.charAt(2));
+        int Movey = Character.getNumericValue(Composite.charAt(3));
+        if (game.board[Piecex][Piecey].move(game.board,Movex+ "" + Movey)){
+
+            Handler.sendMessage(PacketHeader.BOARD_STATE, game.LoadNotationFromMap());
+        }
+
+    }
     private void HandleSelect_Piece(ConnectionHandler Handler) {
         String Location = Handler.readNextString();
 

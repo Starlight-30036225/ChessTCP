@@ -18,7 +18,16 @@ public abstract class Piece {
         this.white = white;
     }
 
-    public boolean move(String NewLocation) {
+    public boolean move(Piece[][] board,String NewLocation) {
+        if (GetPossibleMoves(board).contains(NewLocation)){
+            int oldx = x;
+            int oldy = y;
+            x = Character.getNumericValue(NewLocation.charAt(0));
+            y = Character.getNumericValue(NewLocation.charAt(1));
+            board[x][y] = this;
+            board[oldx][oldy] = null;
+            return true;
+        }
         return false;
     }
 
@@ -282,6 +291,27 @@ class Pawn extends Piece {
     Pawn(char type, int x, int y, boolean white) {
         super(type, x, y, white);
         direction = (white ? -1 : 1);
+    }
+
+    @Override
+    public boolean move(Piece[][] board, String NewLocation) {
+
+        int newx = Character.getNumericValue(NewLocation.charAt(0));
+        int newy = Character.getNumericValue(NewLocation.charAt(1));
+        //I dont need to use too many checks here, as the only chance to move into an empty space with a piece behind it is en-passant
+        boolean TryingToPass =  ((board[newx][newy] == null) &&
+                (board[newx][newy - direction] != null)&& (board[newx][newy - direction] != this));
+
+        boolean doubleMove = (Math.abs(newy - y) == 2);
+        if (super.move(board, NewLocation)){
+            FirstMove = false;
+            if (TryingToPass) {
+                board[newx][newy - direction] = null;
+            }
+            Vulnerable = doubleMove;
+            return true;
+        }
+        return false;
     }
 
     @Override
