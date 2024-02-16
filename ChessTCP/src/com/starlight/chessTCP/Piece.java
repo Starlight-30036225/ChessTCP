@@ -1,8 +1,9 @@
 package com.starlight.chessTCP;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import static java.lang.Math.abs;
 
 public abstract class Piece {
 
@@ -18,8 +19,8 @@ public abstract class Piece {
         this.white = white;
     }
 
-    public boolean move(Piece[][] board,String NewLocation) {
-        if (GetPossibleMoves(board).contains(NewLocation)){
+    public boolean move(Piece[][] board, String NewLocation) {
+        if (GetPossibleMoves(board).contains(NewLocation)) {
             int oldx = x;
             int oldy = y;
             x = Character.getNumericValue(NewLocation.charAt(0));
@@ -35,21 +36,23 @@ public abstract class Piece {
 
     public List<String> GetLegalMoves(Piece[][] board) {
         King k = null;
-        for (Piece[] row:
-                board){
-            for (Piece p:
-                row){
-                if (p != null && p.white == white && p.getClass() == King.class){
-                    k = (King)p;
+        for (Piece[] row :
+                board) {
+            for (Piece p :
+                    row) {
+                if (p != null && p.white == white && p.getClass() == King.class) {
+                    k = (King) p;
                     break;
                 }
             }
-            if (k!=null){break;}
+            if (k != null) {
+                break;
+            }
         }
         List<String> LegalMoves = new ArrayList<>();
-        for (String Move:
+        for (String Move :
                 this.GetPossibleMoves(board)) {
-            if (SimulateMove(board, this, Character.getNumericValue(Move.charAt(0)),Character.getNumericValue(Move.charAt(1)), k)) {
+            if (SimulateMove(board, this, Character.getNumericValue(Move.charAt(0)), Character.getNumericValue(Move.charAt(1)), k)) {
                 LegalMoves.add(Move);
             }
         }
@@ -243,9 +246,19 @@ interface Straight {
 
 class Rook extends Piece implements Straight {
 
+    public boolean FirstMove = true;
 
     Rook(char type, int x, int y, boolean white) {
         super(type, x, y, white);
+    }
+
+    @Override
+    public boolean move(Piece[][] board, String NewLocation) {
+        if (super.move(board, NewLocation)) {
+            FirstMove = false;
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -299,11 +312,11 @@ class Pawn extends Piece {
         int newx = Character.getNumericValue(NewLocation.charAt(0));
         int newy = Character.getNumericValue(NewLocation.charAt(1));
         //I dont need to use too many checks here, as the only chance to move into an empty space with a piece behind it is en-passant
-        boolean TryingToPass =  ((board[newx][newy] == null) &&
-                (board[newx][newy - direction] != null)&& (board[newx][newy - direction] != this));
+        boolean TryingToPass = ((board[newx][newy] == null) &&
+                (board[newx][newy - direction] != null) && (board[newx][newy - direction] != this));
 
         boolean doubleMove = (Math.abs(newy - y) == 2);
-        if (super.move(board, NewLocation)){
+        if (super.move(board, NewLocation)) {
             FirstMove = false;
             if (TryingToPass) {
                 board[newx][newy - direction] = null;
@@ -340,6 +353,7 @@ class Pawn extends Piece {
 
         return Moves;
     }
+
     public boolean ValidateMove(Piece piece, Piece[][] board, int x, int y, List<String> Moves, boolean takeRequired) {
         if ((x > 7 || x < 0 || y > 7 || y < 0)) {
             return false;
@@ -382,8 +396,41 @@ class Knight extends Piece {
 }
 
 class King extends Piece {
+
+    private boolean FirstMove = true;
+
     King(char type, int x, int y, boolean white) {
         super(type, x, y, white);
+    }
+
+    @Override
+    public boolean move(Piece[][] board, String NewLocation) {
+        int StartX = this.x;        //Saves X to check later
+        int newX = Character.getNumericValue(NewLocation.charAt(0));
+        boolean AttemptingCastle = (abs(StartX - newX) == 2);       //If this piece is moving 2 spaces, its castling
+
+
+        if (!super.move(board, NewLocation)) {return false;} ///Gatekeeping
+        FirstMove = false;
+        if (!AttemptingCastle) { return true; }
+
+        int RookDirection = ((StartX - newX) > 0) ? -1 : 1;  //Finds which side the rook is on
+
+        //You know there is going to be a rook or this move wouldnt have been possible
+        while (board[x + RookDirection][y] == null) {  //scans that direction for the rook
+            RookDirection += RookDirection;
+        }
+
+        Rook rook = (Rook) board[x + RookDirection][y];   //Get the rook
+
+
+        //Have to force the move as the king is now in the way so it doesnt register as possible
+        board[rook.x][y] = null;
+        rook.x = this.x - (((StartX - newX) > 0) ? -1 : 1);  //Place the rook on the other side of the king
+        board[rook.x][y] = rook;
+
+
+        return true;
     }
 
     @Override
@@ -400,7 +447,60 @@ class King extends Piece {
         ValidateMove(this, board, x - 1, y - 1, Moves);
         ValidateMove(this, board, x - 1, y, Moves);
         ValidateMove(this, board, x - 1, y + 1, Moves);
+        Castle(board, Moves);
         return Moves;
     }
+
+    private boolean Castle(Piece[][] board, List<String> moves) {
+        boolean added = false;
+        if (!FirstMove) {return false;} //Can only do this on first move
+        if (x + 3 < 8 &&   //checks in any passed space is in check
+                isLocationSafe(board, this, x, y) &&
+                isLocationSafe(board, this, x + 1, y) && board[x + 1][y] == null &&
+                isLocationSafe(board, this, x + 2, y) && board[x + 2][y] == null) {
+
+            int counter = 3;    //Starts the counter at 3, as the rook must be atleast that far away
+            boolean valid = false;
+
+            while (counter + x < 8) {
+                if (board[x + counter][y] != null) {    //if there is a piece here, if its not a rook this check fails
+                    valid = (board[x + counter][y].white == white && //Is piece same colour
+                            board[x + counter][y].getClass() == Rook.class &&
+                            ((Rook)board[x + counter][y]).FirstMove);  //is Piece a rook
+                    break;
+                }
+                counter++;
+            }
+            if (valid) {
+                moves.add((x + 2) + "" + y);    //adds the move to the list
+                added = true;
+            }
+        }
+
+        if (x - 3 < 8 &&   //checks in any passed space is in check
+                isLocationSafe(board, this, x, y) &&
+                isLocationSafe(board, this, x - 1, y) && board[x - 1][y] == null &&
+                isLocationSafe(board, this, x - 2, y) && board[x - 2][y] == null) {
+
+            int counter = 3;    //Starts the counter at 3, as the rook must be atleast that far away
+            boolean valid = false;
+
+            while (x- counter > -1) {   //Keeps the checks inside range
+                if (board[x - counter][y] != null) {
+                    valid = (board[x - counter][y].white == white && //Is piece same colour
+                            board[x - counter][y].getClass() == Rook.class &&//is Piece a rook
+                            ((Rook)board[x - counter][y]).FirstMove);
+                    break;
+                }
+                counter++;
+            }
+            if (valid) {
+                moves.add((x - 2) + "" + y);
+                added = true;
+            }
+        }
+        return added;
+    }
+
 
 }

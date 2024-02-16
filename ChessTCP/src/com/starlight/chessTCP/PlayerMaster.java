@@ -20,7 +20,7 @@ public class PlayerMaster {
         pool = Executors.newCachedThreadPool();
         client = new PlayerClient("127.0.0.1", 9999, this);
         pool.execute(client);
-        Board = new BoardDisplay(true);
+        Board = new BoardDisplay(false);
         Board.printMap();
         SetUpMouseListeners(Board.frame);
     }
@@ -101,8 +101,8 @@ public class PlayerMaster {
 
                 //Gets mouse location as board coords
 
-                int x = ((Board.MouseX - Board.MARGIN)/ (Board.SQUARE_SIZE));
-                int y = ((Board.MouseY - Board.MARGIN + 32)/ (Board.SQUARE_SIZE));
+                int x = ((e.getX() - Board.MARGIN)/ (Board.SQUARE_SIZE));
+                int y = ((e.getY() - (Board.MARGIN + 32))/ (Board.SQUARE_SIZE));
                 String location = x + "" + y;
 
 

@@ -37,7 +37,6 @@ public class GameServer extends Server{
 
         }
     }
-
     private void HandleMove(ConnectionHandler Handler){
         String Composite = Handler.readNextString();
         int Piecex = Character.getNumericValue(Composite.charAt(0));
@@ -46,8 +45,11 @@ public class GameServer extends Server{
         int Movex = Character.getNumericValue(Composite.charAt(2));
         int Movey = Character.getNumericValue(Composite.charAt(3));
         if (game.board[Piecex][Piecey].move(game.board,Movex+ "" + Movey)){
+            for (ConnectionHandler H:
+                 clients) {
+                H.sendMessage(PacketHeader.BOARD_STATE, game.LoadNotationFromMap());
+            }
 
-            Handler.sendMessage(PacketHeader.BOARD_STATE, game.LoadNotationFromMap());
         }
 
     }
@@ -66,7 +68,6 @@ public class GameServer extends Server{
         //sends all moves back to client
         Handler.sendMessage(PacketHeader.POSSIBLE_MOVES, CompositeMoveString);
     }
-
     @Override
     protected void SendWelcomeMessage(ConnectionHandler CH) {
         CH.sendMessage(PacketHeader.BOARD_STATE, game.LoadNotationFromMap());
@@ -79,9 +80,9 @@ class GameMaster {
 
     Piece[][] board;
     public GameMaster(){
-        LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+        //LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
         //LoadMapFromNotation("rnbqkbnr/1pppppp1/8/3rR3/3Rr3/8/7P/RNBQKBNR");
-        //LoadMapFromNotation("k/8/8/6b1/8/4KP1r/6N1/8");
+        LoadMapFromNotation("3k4/8/8/8/8/8/8/R3K2R");
     }
 
     private void LoadMapFromNotation(String Notation) {
