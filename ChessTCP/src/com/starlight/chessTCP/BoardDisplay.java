@@ -17,8 +17,7 @@ public class BoardDisplay {
 
     public  JFrame frame;
     public  SimplePiece[][] Board;
-     Image[] imgList;
-
+    Image[] imgList;
     public  List<String> possibleMoves;
 
     SimplePiece SelectedPiece;
@@ -33,7 +32,7 @@ public class BoardDisplay {
     public BoardDisplay(boolean white) {
         this.White = white;
         possibleMoves = new ArrayList<>();
-        LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+        //LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 
 
     }
@@ -54,6 +53,7 @@ public class BoardDisplay {
     private void ExtractImages() {
         BufferedImage BaseImage;
 
+        //gets sprite sheet
         try {
             BaseImage = ImageIO.read(new File("src/Resources/chess2.png"));
         } catch (IOException e) {
@@ -62,12 +62,14 @@ public class BoardDisplay {
         }
 
         imgList = new Image[12];        //Creates an array of 12 images
+        int width = BaseImage.getWidth();
+        int height = BaseImage.getHeight();
 
         int ind = 0;        //saves the index
 
-        for (int y = 0; y < 400; y += 200) {
-            for (int x = 0; x < 1200; x += 200) {
-                imgList[ind] = BaseImage.getSubimage(x, y, 200, 200).getScaledInstance(64, 64, BufferedImage.SCALE_SMOOTH);
+        for (int y = 0; y < height; y += height/2) {
+            for (int x = 0; x < width; x += width /6) {
+                imgList[ind] = BaseImage.getSubimage(x, y, width/6, height/2).getScaledInstance(SQUARE_SIZE, SQUARE_SIZE, BufferedImage.SCALE_SMOOTH);
                 ind++;
             }
         }
@@ -97,12 +99,13 @@ public class BoardDisplay {
 
                     // add text to label
                     g.setColor(Color.BLACK);
-                    rank = String.valueOf(White? (Y + 1) : 8 - Y);
-                    file = String.valueOf(White? (char) ((Y ) + 97) : (char) ((7 - Y ) + 97));
+                    rank = String.valueOf(!White? (Y + 1) : 8 - Y); //Numbers on side
+                    file = String.valueOf(White? (char) ((Y ) + 97) : (char) ((7 - Y ) + 97));      //Letters across top
 
-                    g.drawString(rank, MARGIN/2, (int) (Y * 64 + (MARGIN * 2.3)));
-                    g.drawString(file, (Y * 64 + (MARGIN * 2)),MARGIN/2);
+                    g.drawString(rank, MARGIN/2, (int) (Y * SQUARE_SIZE + (MARGIN * 2.3)));
+                    g.drawString(file, (Y * SQUARE_SIZE + (MARGIN * 2)),MARGIN/2);
 
+                    //Draws checkered pattern
                     for (int X = 0; X < 8; X++) {
                         if (white) {
                             g.setColor(Color.magenta);
@@ -113,34 +116,30 @@ public class BoardDisplay {
 
                         white = !white;  //flips the flop
 
-                        g.fillRect(X * 64 + MARGIN, Y * 64 + MARGIN, 64, 64);
-                        Highlight(g,Y,X);
+                        g.fillRect(X * SQUARE_SIZE + MARGIN, Y * SQUARE_SIZE + MARGIN, SQUARE_SIZE, SQUARE_SIZE);
+                        Highlight(g,X,Y);
                     }
                     white = !white;
                 }
                 DrawPieces(g);
             }
-
-
             private void DrawPieces(Graphics g) {
                 for (SimplePiece[] Row :
                         Board) {
                     for (SimplePiece p:
                             Row) {
-                        if (p == null) {continue;}
-                        int imageVal = p.getImageval();
-                        if (p == SelectedPiece) {
+                        if (p == null) {continue;}  //No piece at this location, skip
+                        int imageVal = p.getImageval();     //get image from piece
+                        if (p == SelectedPiece) {   //if piece is selected, render on mouse not at bass location
                             g.drawImage(imgList[imageVal], MouseX, MouseY, this);
                         }
-                        else{
+                        else{   //renders at piece location
                             g.drawImage(imgList[imageVal], p.getX() * SQUARE_SIZE + MARGIN, p.getY() * SQUARE_SIZE+MARGIN, this);
                         }
 
                     }
                 }
             }
-
-
         };
         frame.add(pn);
     }
@@ -177,27 +176,21 @@ public class BoardDisplay {
         }
     }
 
-    private void Highlight(Graphics g, int Y, int X) {
-        if (!this.White) {
-           // for (int i = 0; i < this.possibleMoves.size() - 1; i++) {
-           //     possibleMoves.set(i, FlipCoords(possibleMoves.get(i)));
-           // }
-        }
-        if(possibleMoves != null && possibleMoves.contains(X + "" + Y)){
-            Color HighlightColor;
+    private void Highlight(Graphics g, int X, int Y) {
+        //gatekeeping
+        if((possibleMoves == null || !possibleMoves.contains(X + "" + Y))){ return;} //This location is irrelvant, skip
 
-            HighlightColor = (this.White == SelectedPiece.white)? new Color(0, 200, 0, 200) : new Color(200, 0, 0, 200) ;
-            g.setColor(HighlightColor);
-            if (Board[X][Y] == null) {
-                g.fillOval((X * SQUARE_SIZE + (MARGIN + 20)), (Y * SQUARE_SIZE + MARGIN + 20), 24, 24);
-            }
-            else{
-                g.fillOval(X * SQUARE_SIZE + MARGIN + 10, Y * SQUARE_SIZE + MARGIN + 10, 44, 44);
-            }
-        }
+        Color HighlightColor = (this.White == SelectedPiece.white)? new Color(0, 200, 0, 200) : new Color(200, 0, 0, 200) ;
+
+        g.setColor(HighlightColor);
+
+        //If there is a piece at the location, the circle needs to be a lil bigger
+        int circleSize = Board[X][Y] == null? 24: 44;
+        int offset = Board[X][Y] == null? 20: 10;
+        g.fillOval(X * SQUARE_SIZE + MARGIN + offset, Y * SQUARE_SIZE + MARGIN + offset, circleSize, circleSize);
     }
 
-    public String FlipCoords(String Coords){
+    public String FlipCoords(String Coords){        //flips coords from white layout to black layout or vice versa
 
         int x = Character.getNumericValue(Coords.charAt(0)) + 1;
         int y = Character.getNumericValue(Coords.charAt(1)) + 1;
@@ -230,7 +223,7 @@ class SimplePiece{
 
     PieceEnum type;
     int x,y;
-    boolean white = true;
+    boolean white;
 
     public int getImageval() {
         return type.BaseImageVal + (white? 0 : 6);

@@ -7,13 +7,10 @@ public class PlayerClient extends Client{
     public PlayerClient(String IP, int port, PlayerMaster Master) {
         super(IP, port);
         this.Master = Master;
-        System.out.println(2 + "" + 2);
     }
-
-    private PlayerMaster Master = null;
+    private PlayerMaster Master;        //Reference to owner
     @Override
     protected void HandlePacket(PacketHeader packetHeader) {
-            //String String = readNextString();
             System.out.println(packetHeader);
             switch (packetHeader){
                 case WELCOME:

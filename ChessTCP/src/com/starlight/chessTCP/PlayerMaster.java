@@ -20,16 +20,14 @@ public class PlayerMaster {
         pool = Executors.newCachedThreadPool();
         client = new PlayerClient("127.0.0.1", 9999, this);
         pool.execute(client);
-        Board = new BoardDisplay(false);
+        Board = new BoardDisplay(true);
         Board.printMap();
         SetUpMouseListeners(Board.frame);
     }
 
     public void recieveBoardStatus(String Notation) {
         Board.LoadMapFromNotation(Notation);
-        //Board.printMap();
         Board.frame.repaint();
-        //System.out.println(Notation);
     }
 
     public void receivePossibleMoves(List<String> possibleMoves) {
@@ -58,40 +56,33 @@ public class PlayerMaster {
             @Override
             public void mousePressed(MouseEvent e) {
                 //Used for dragging
-                if (!requestNewPossibles) { return;}
-                //gets current mouse pos
+                if (!requestNewPossibles) { return;}    //Haven't recieved the last request yet
+                //gets current mouse pos (and sends to server)
                 int MouseX = Board.MouseX = (e.getX() -Board.MARGIN); ;
                 int MouseY = Board.MouseY = (e.getY()- (Board.MARGIN + 32));
-                System.out.println(MouseX + "   " + MouseY);
-                //MouseX -= Board.MARGIN;
-                //MouseY -= Board.MARGIN + 32;
-                //tells the display where the mouse is, so it can display the selected piece over the mouse
 
-                //Force Mouse to be in range
-                if (MouseY > Board.BOARD_HEIGHT) {MouseY = Board.BOARD_HEIGHT;} else if (MouseY < 0) { return;}//MouseY =0;}
-                if (MouseX > Board.BOARD_WIDTH) {MouseX = Board.BOARD_WIDTH;} else if (MouseX < 0) { return;}//MouseX =0;}
 
-                //Convert mouse coords to board coords (plus 3 just seems to work)
-                //MouseX -= Board.SQUARE_SIZE;
-                //MouseY -= Board.SQUARE_SIZE;
+                //if mouse is out of range, ignore
+                if (MouseY > Board.BOARD_HEIGHT || MouseY < 0
+                        || MouseX > Board.BOARD_WIDTH || MouseX < 0) { return;}
+
 
                 MouseX /= Board.SQUARE_SIZE;
                 MouseY /= Board.SQUARE_SIZE;
 
+                if (MouseX >= 8 || MouseY >= 8) {return;}   //gatekeeping if mouse is out of range of array, but shoulnt happen
 
-                if (MouseX >= 8 || MouseY >= 8) {return;}   //gatekeeping if mouse is out of range of array
                 Board.SelectedPiece = Board.Board[MouseX][MouseY];
-                if (Board.SelectedPiece == null) {return;}      //not clicking a piece
+                if (Board.SelectedPiece == null) {return;}      //not clicking a piece, exit here
 
                 //Sends piece to server
                 String Location = Board.SelectedPiece.getLocation();
+
                 if (!Board.White) {Location = Board.FlipCoords(Location);}
 
-                    client.sendMessage(PacketHeader.SELECT_PIECE, Location);
+                client.sendMessage(PacketHeader.SELECT_PIECE, Location);
 
-
-
-                requestNewPossibles = false;
+                requestNewPossibles = false;        //Currently requesting possible moves, cant ask for more until this is returned.
             }
 
             @Override
@@ -99,8 +90,8 @@ public class PlayerMaster {
 
                 if (Board.SelectedPiece == null) {return;}      //gatekeeping
 
-                //Gets mouse location as board coords
 
+                //Gets mouse location as board coords
                 int x = ((e.getX() - Board.MARGIN)/ (Board.SQUARE_SIZE));
                 int y = ((e.getY() - (Board.MARGIN + 32))/ (Board.SQUARE_SIZE));
                 String location = x + "" + y;
@@ -130,20 +121,22 @@ public class PlayerMaster {
         });
         frame.addMouseMotionListener(new MouseMotionListener() {
             @Override
-            public void mouseDragged(MouseEvent e) {
+            public void mouseDragged(MouseEvent e) {        //keeps the selected piece in range
                 if (Board.SelectedPiece == null) {return;}
                 Board.MouseX = e.getX();
                 Board.MouseY = e.getY();
+                //keep in range of Y
                 if (Board.MouseY > Board.BOARD_HEIGHT+ Board.MARGIN) {Board.MouseY = Board.BOARD_HEIGHT+ Board.MARGIN;}
                 else if (Board.MouseY < Board.MARGIN) {Board.MouseY = Board.MARGIN;}
 
-
+                //Keep in range of X
                 if (Board.MouseX > Board.BOARD_HEIGHT+ Board.MARGIN) {Board.MouseX = Board.BOARD_HEIGHT+ Board.MARGIN;}
                 else if (Board.MouseX < Board.MARGIN) {Board.MouseX = Board.MARGIN;}
 
+                //account for margin
                 Board.MouseX -= Board.MARGIN;
                 Board.MouseY -= (Board.MARGIN + 32);
-
+                //redraw with new mouse location
                 frame.repaint();
             }
 

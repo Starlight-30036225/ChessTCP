@@ -1,6 +1,4 @@
 package com.starlight.chessTCP;
-
-import java.sql.Connection;
 import java.util.List;
 
 public class GameServer extends Server{
@@ -39,19 +37,18 @@ public class GameServer extends Server{
     }
     private void HandleMove(ConnectionHandler Handler){
         String Composite = Handler.readNextString();
+        //gets the start location of the move/piece location
         int Piecex = Character.getNumericValue(Composite.charAt(0));
         int Piecey = Character.getNumericValue(Composite.charAt(1));
-
+        //gets the end location of the move
         int Movex = Character.getNumericValue(Composite.charAt(2));
         int Movey = Character.getNumericValue(Composite.charAt(3));
-        if (game.board[Piecex][Piecey].move(game.board,Movex+ "" + Movey)){
-            for (ConnectionHandler H:
-                 clients) {
-                H.sendMessage(PacketHeader.BOARD_STATE, game.LoadNotationFromMap());
-            }
 
+        if (!game.board[Piecex][Piecey].move(game.board,Movex+ "" + Movey)) {return;}   //move failed, exit here
+        for (ConnectionHandler H:
+                clients) {
+            H.sendMessage(PacketHeader.BOARD_STATE, game.LoadNotationFromMap());    //Update all clients of the move
         }
-
     }
     private void HandleSelect_Piece(ConnectionHandler Handler) {
         String Location = Handler.readNextString();
@@ -72,8 +69,6 @@ public class GameServer extends Server{
     protected void SendWelcomeMessage(ConnectionHandler CH) {
         CH.sendMessage(PacketHeader.BOARD_STATE, game.LoadNotationFromMap());
     }
-
-
 }
 
 class GameMaster {
@@ -82,7 +77,8 @@ class GameMaster {
     public GameMaster(){
         //LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
         //LoadMapFromNotation("rnbqkbnr/1pppppp1/8/3rR3/3Rr3/8/7P/RNBQKBNR");
-        LoadMapFromNotation("3k4/8/8/8/8/8/8/R3K2R");
+        //LoadMapFromNotation("3k4/8/8/8/8/8/8/R3K2R");
+        LoadMapFromNotation("3k4/8/8/8/3Q4/8/8/4K3");
     }
 
     private void LoadMapFromNotation(String Notation) {
@@ -115,23 +111,24 @@ class GameMaster {
         }
     }
 
-    public String LoadNotationFromMap() {
-        String Notation = "";
-        int counter = 0;
+    public String LoadNotationFromMap() {       //constructs a FEN string denoting the current state of board
+        String Notation = "";   //return val
+
+        int counter;
         for(int file = 0; file < 8; file++){
             counter = 0;
             for (int rank = 0; rank <8; rank++) {
-                Piece temp = board[rank][file];
-
-                if (temp == null) {
+                Piece temp = board[rank][file]; //Gets piece at location
+                if (temp == null) { //there is no piece at location
                     counter++;
                     continue;
                 }
-                if (counter > 0){
-                    Notation += counter;
-                    counter = 0;
+
+                if (counter > 0){   //if the counter is more than 1, and a piece has been found
+                    Notation += counter;        //add the number of spaces before piece to notation
+                    counter = 0;        //Reset counter
                 }
-                Notation += temp.characterVal;
+                Notation += temp.characterVal;  //add piece as char to notation
             }
             if (counter > 0){
                 Notation += counter;
@@ -146,7 +143,6 @@ class GameMaster {
     }
 
     public List<String> getPossibleMoves(int x, int y){
-
         Piece temp = board[x][y];
         return temp.GetLegalMoves(board);
     }

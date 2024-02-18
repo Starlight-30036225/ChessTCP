@@ -2,7 +2,6 @@ package com.starlight.chessTCP;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import static java.lang.Math.abs;
 
 public abstract class Piece {
@@ -20,23 +19,25 @@ public abstract class Piece {
     }
 
     public boolean move(Piece[][] board, String NewLocation) {
-        if (GetPossibleMoves(board).contains(NewLocation)) {
+        if (!GetPossibleMoves(board).contains(NewLocation)) {return false;}
             int oldx = x;
-            int oldy = y;
+            int oldy = y;   //Saves the pieces current location before move
+
             x = Character.getNumericValue(NewLocation.charAt(0));
-            y = Character.getNumericValue(NewLocation.charAt(1));
-            board[x][y] = this;
-            board[oldx][oldy] = null;
+            y = Character.getNumericValue(NewLocation.charAt(1));   //Pieces new location from string
+
+            board[x][y] = this; //Places this piece at the new location
+            board[oldx][oldy] = null;   //Sets the previous location to empty
             return true;
-        }
-        return false;
+
     }
 
-    public abstract List<String> GetPossibleMoves(Piece[][] board);
+    public abstract List<String> GetPossibleMoves(Piece[][] board); //Gets all moves it could make with minimal legality checks
 
-    public List<String> GetLegalMoves(Piece[][] board) {
+    public List<String> GetLegalMoves(Piece[][] board) {    //Checks all possible moves for legality
         King k = null;
-        for (Piece[] row :
+
+        for (Piece[] row :          //Loops through all pieces to find king
                 board) {
             for (Piece p :
                     row) {
@@ -49,24 +50,21 @@ public abstract class Piece {
                 break;
             }
         }
-        List<String> LegalMoves = new ArrayList<>();
-        for (String Move :
+
+        if (k == null) {return null;}       //If a player doesn't have a king, its game over they cant move
+
+        List<String> LegalMoves = new ArrayList<>();    //return val
+
+        for (String Move :  //Loops through all possible moves and checks legality
                 this.GetPossibleMoves(board)) {
-            if (SimulateMove(board, this, Character.getNumericValue(Move.charAt(0)), Character.getNumericValue(Move.charAt(1)), k)) {
+            if (SimulateMove(board, this,   //Checks if king is safe after this move is made. If it isn't, move is not legal
+                    Character.getNumericValue(Move.charAt(0)), Character.getNumericValue(Move.charAt(1)), k)) {
                 LegalMoves.add(Move);
             }
         }
 
         return LegalMoves;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
+    }   //returns possible moves after legality check
 
     public static Piece CreatePiece(char type, int x, int y, boolean white) {
 
@@ -93,18 +91,18 @@ public abstract class Piece {
                 return null;
             }
         }
-    }
+    }   //Simple factory function
 
     public boolean ValidateMove(Piece piece, Piece[][] board, int x, int y, List<String> Moves) {
-        if (!(x > 7 || x < 0 || y > 7 || y < 0)) {        //Checks the location is in range
-            if (board[x][y] != null && board[x][y].white == piece.white) {
-                return false;
-            }  //If a piece in location is same colour, cant move there
-            Moves.add(x + "" + y);
-            return true;
-        }
-        return false;
-    }
+        //gatekeeping
+        if ((x > 7 || x < 0 || y > 7 || y < 0)) {return false;  }      //Checks the location is out of range
+        if (board[x][y] != null && board[x][y].white == piece.white) {return false;}  //If a piece in location is same colour, cant move there
+
+
+        Moves.add(x + "" + y);
+        return true;
+
+    }   //checks valid
 
     static boolean isLocationSafe(Piece[][] Board, Piece piece, int x, int y) {
         for (Piece[] col :
@@ -116,7 +114,6 @@ public abstract class Piece {
                     return false;
                 }
             }
-
         }
         return true;
     }
@@ -152,8 +149,8 @@ interface Diagonal {
     static List<String> GetPossibleMoves(Piece piece, Piece[][] board) {
 
         List<String> moves = new ArrayList<>(); //return val
-        int testx = 0;
-        int testy = 0;
+        int testx;
+        int testy;
         int distance = 0;
         {   //right
 
@@ -298,7 +295,7 @@ class Queen extends Piece implements Straight, Diagonal {
 class Pawn extends Piece {
 
     private boolean FirstMove = true;
-    private boolean Vulnerable = false;
+    public boolean Vulnerable = false;      //If could be captured via en passant
     private int direction;
 
     Pawn(char type, int x, int y, boolean white) {
@@ -311,34 +308,34 @@ class Pawn extends Piece {
 
         int newx = Character.getNumericValue(NewLocation.charAt(0));
         int newy = Character.getNumericValue(NewLocation.charAt(1));
+
         //I dont need to use too many checks here, as the only chance to move into an empty space with a piece behind it is en-passant
-        boolean TryingToPass = ((board[newx][newy] == null) &&
+        boolean AttemptingEnPassant = ((board[newx][newy] == null) &&
                 (board[newx][newy - direction] != null) && (board[newx][newy - direction] != this));
 
         boolean doubleMove = (Math.abs(newy - y) == 2);
-        if (super.move(board, NewLocation)) {
-            FirstMove = false;
-            if (TryingToPass) {
-                board[newx][newy - direction] = null;
-            }
-            Vulnerable = doubleMove;
-            return true;
-        }
-        return false;
-    }
+        if (!super.move(board, NewLocation)) {return false;}     //The move failed so no need to check anymore
 
+        FirstMove = false;
+        if (AttemptingEnPassant) {
+            board[newx][newy - direction] = null;
+        }
+        Vulnerable = doubleMove;
+
+        return true;
+    }
     @Override
     public List<String> GetPossibleMoves(Piece[][] board) {
         List<String> Moves = new ArrayList<>();
         if (ValidateMove(this, board, x, y + direction, Moves, false) && FirstMove) {
-
-            ValidateMove(this, board, x, y + direction * 2, Moves, false);
+            ValidateMove(this, board, x, y + direction * 2, Moves, false);      //If it can move forward one, we know that space is empty
         }
-
+        //Diagonal moves (capture required)
         ValidateMove(this, board, x + 1, y + direction, Moves, true);
-
         ValidateMove(this, board, x - 1, y + direction, Moves, true);
 
+
+        //en passant
         if (x + 1 < 8 && board[x + 1][y] != null
                 && board[x + 1][y].getClass() == Pawn.class && board[x + 1][y].white != white && ((Pawn) board[x + 1][y]).Vulnerable //Check is piece on right is pawn, and vulnerable
                 && (board[x + 1][y + direction] == null)) {  //Check is space moved to is empty
@@ -353,8 +350,7 @@ class Pawn extends Piece {
 
         return Moves;
     }
-
-    public boolean ValidateMove(Piece piece, Piece[][] board, int x, int y, List<String> Moves, boolean takeRequired) {
+    public boolean ValidateMove(Piece piece, Piece[][] board, int x, int y, List<String> Moves, boolean takeRequired) { //Pawn specific conditions
         if ((x > 7 || x < 0 || y > 7 || y < 0)) {
             return false;
         }
@@ -447,7 +443,9 @@ class King extends Piece {
         ValidateMove(this, board, x - 1, y - 1, Moves);
         ValidateMove(this, board, x - 1, y, Moves);
         ValidateMove(this, board, x - 1, y + 1, Moves);
+
         Castle(board, Moves);
+
         return Moves;
     }
 
