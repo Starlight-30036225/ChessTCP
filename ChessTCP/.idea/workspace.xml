@@ -10,10 +10,6 @@
     <list default="true" id="174d0ed8-668b-411d-8b4e-0259eb6b5687" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/Piece.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/Piece.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -95,7 +91,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java</url>
-          <line>60</line>
+          <line>36</line>
           <option name="timeStamp" value="45" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
@@ -105,8 +101,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java</url>
-          <line>216</line>
+          <line>334</line>
           <option name="timeStamp" value="54" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java</url>
+          <line>84</line>
+          <option name="timeStamp" value="55" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

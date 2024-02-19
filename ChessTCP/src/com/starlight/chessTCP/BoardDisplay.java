@@ -2,7 +2,10 @@ package com.starlight.chessTCP;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.MouseInputListener;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -16,9 +19,11 @@ public class BoardDisplay {
     public boolean White;
 
     public  JFrame frame;
-    public  SimplePiece[][] Board;
+    public SimplePiece[][] Board;
     Image[] imgList;
     public  List<String> possibleMoves;
+
+    PlayerMaster master;
 
     SimplePiece SelectedPiece;
 
@@ -29,9 +34,10 @@ public class BoardDisplay {
     public final int BOARD_HEIGHT = 600;
 
     public final int SQUARE_SIZE = 64;
-    public BoardDisplay(boolean white) {
+    public BoardDisplay(boolean white, PlayerMaster master) {
         this.White = white;
         possibleMoves = new ArrayList<>();
+        this.master = master;
         //LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 
 
@@ -46,8 +52,8 @@ public class BoardDisplay {
         PaintFrame(frame);
 
         //SetUpMouseListeners(frame);
-
         frame.setVisible(true);
+        SetUpMouseListeners(frame);
     }
 
     private void ExtractImages() {
@@ -74,7 +80,6 @@ public class BoardDisplay {
             }
         }
     }
-
     private JFrame getFrame() {
 
         //sets up JFrame
@@ -208,6 +213,119 @@ public class BoardDisplay {
              newMoves) {
             possibleMoves.add(this.White? s : FlipCoords(s));
         }
+    }
+
+    public void SetUpMouseListeners(JFrame frame) {
+
+        frame.addMouseListener(new MouseInputListener() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                //Used for dragging
+                //gets current mouse pos (and sends to server)
+                int MouseX = MouseX = (e.getX() -MARGIN); ;
+                int MouseY = MouseY = (e.getY()- (MARGIN + 32));
+
+
+                //if mouse is out of range, ignore
+                if (MouseY > BOARD_HEIGHT || MouseY < 0
+                        || MouseX > BOARD_WIDTH || MouseX < 0) { return;}
+
+
+                MouseX /= SQUARE_SIZE;
+                MouseY /= SQUARE_SIZE;
+
+                if (MouseX >= 8 || MouseY >= 8) {return;}   //gatekeeping if mouse is out of range of array, but shoulnt happen
+
+                SelectedPiece = Board[MouseX][MouseY];
+                if (SelectedPiece == null) {return;}      //not clicking a piece, exit here
+
+                //Sends piece to server
+                String Location = SelectedPiece.getLocation();
+
+                if (!White) {Location = FlipCoords(Location);}
+
+                master.requestPossibleMoves(Location);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+                if (SelectedPiece == null) {return;}      //gatekeeping
+
+
+                //Gets mouse location as board coords
+                int x = ((e.getX() - MARGIN)/ (SQUARE_SIZE));
+                int y = ((e.getY() - (MARGIN + 32))/ (SQUARE_SIZE));
+                String Location = x + "" + y;
+                String PieceLocation = SelectedPiece.getLocation();
+
+                if (possibleMoves.contains(Location)) {   //Checks requested move is possible
+                    if (!White) {
+                        Location = FlipCoords(Location);
+                        PieceLocation = FlipCoords(SelectedPiece.getLocation());
+                    }
+                    master.requestMove(PieceLocation, Location);
+                }
+
+                //clear relevant data and redraw board
+                SelectedPiece =null;
+                possibleMoves.clear();
+                frame.repaint();
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+
+        });
+        frame.addMouseMotionListener(new MouseMotionListener() {
+            @Override
+            public void mouseDragged(MouseEvent e) {        //keeps the selected piece in range
+                if ( SelectedPiece == null) {return;}
+                MouseX = e.getX();
+                 MouseY = e.getY();
+                //keep in range of Y
+                if ( MouseY >  BOARD_HEIGHT+  MARGIN) { MouseY =  BOARD_HEIGHT+  MARGIN;}
+                else if ( MouseY <  MARGIN) { MouseY =  MARGIN;}
+
+                //Keep in range of X
+                if ( MouseX >  BOARD_HEIGHT+  MARGIN) { MouseX =  BOARD_HEIGHT+  MARGIN;}
+                else if ( MouseX <  MARGIN) { MouseX =  MARGIN;}
+
+                //account for margin
+                 MouseX -=  MARGIN;
+                 MouseY -= ( MARGIN + 32);
+                //redraw with new mouse location
+                frame.repaint();
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+
+            }
+        });
     }
 }
 
