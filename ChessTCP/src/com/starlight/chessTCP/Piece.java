@@ -19,7 +19,7 @@ public abstract class Piece {
     }
 
     public boolean move(Piece[][] board, String NewLocation) {
-        if (!GetPossibleMoves(board).contains(NewLocation)) {return false;}
+        if (!GetLegalMoves(board).contains(NewLocation)) {return false;}
             int oldx = x;
             int oldy = y;   //Saves the pieces current location before move
 
@@ -109,7 +109,7 @@ public abstract class Piece {
                 Board) {
             for (Piece p :
                     col) {  //Iterates through all pieces
-                if (p != null && piece.white != p.white && p.getClass() != King.class &&
+                if (p != null && piece.white != p.white &&
                         p.GetPossibleMoves(Board).contains(x + "" + y)) {
                     return false;
                 }
@@ -444,8 +444,16 @@ class King extends Piece {
         ValidateMove(this, board, x - 1, y, Moves);
         ValidateMove(this, board, x - 1, y + 1, Moves);
 
-        Castle(board, Moves);
+        //Castle(board, Moves);
 
+        return Moves;
+    }
+
+    @Override
+    public List<String> GetLegalMoves(Piece[][] board) {
+        List<String> Moves = new ArrayList<>();
+        Moves = super.GetLegalMoves(board);
+        Castle(board, Moves);
         return Moves;
     }
 

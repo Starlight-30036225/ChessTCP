@@ -5,6 +5,13 @@ public class GameServer extends Server{
 
     GameMaster game;
 
+    ConnectionHandler WhitePlayer;
+    ConnectionHandler BlackPlayer;
+
+    boolean white = true;
+
+    boolean testmode = false;
+
     public GameServer(int port) {
         super(port);
         game = new GameMaster();
@@ -37,9 +44,17 @@ public class GameServer extends Server{
     }
     private void HandleMove(ConnectionHandler Handler){
         String Composite = Handler.readNextString();
+
+        if (!testmode && Handler !=
+                (white? WhitePlayer :BlackPlayer)) {return;}
+
         //gets the start location of the move/piece location
         int Piecex = Character.getNumericValue(Composite.charAt(0));
         int Piecey = Character.getNumericValue(Composite.charAt(1));
+
+        if (game.board[Piecex][Piecey] == null ||
+                (!testmode && game.board[Piecex][Piecey].white != white)) {return;} //Piece is invalid or wrong colour
+
         //gets the end location of the move
         int Movex = Character.getNumericValue(Composite.charAt(2));
         int Movey = Character.getNumericValue(Composite.charAt(3));
@@ -49,6 +64,11 @@ public class GameServer extends Server{
                 clients) {
             H.sendMessage(PacketHeader.BOARD_STATE, game.LoadNotationFromMap());    //Update all clients of the move
         }
+
+        if (testmode) {return;}
+        white = !white;
+
+
     }
     private void HandleSelect_Piece(ConnectionHandler Handler) {
         String Location = Handler.readNextString();
@@ -67,7 +87,20 @@ public class GameServer extends Server{
     }
     @Override
     protected void SendWelcomeMessage(ConnectionHandler CH) {
+
+
+
+        if (!testmode) {
+            if (WhitePlayer == null) {
+                WhitePlayer = CH;
+                CH.sendMessage(PacketHeader.WELCOME, "WHITE");
+            } else if (BlackPlayer == null) {
+                BlackPlayer = CH;
+                CH.sendMessage(PacketHeader.WELCOME, "BLACK");
+            }
+        }
         CH.sendMessage(PacketHeader.BOARD_STATE, game.LoadNotationFromMap());
+
     }
 }
 
@@ -75,10 +108,10 @@ class GameMaster {
 
     Piece[][] board;
     public GameMaster(){
-        //LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+        LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
         //LoadMapFromNotation("rnbqkbnr/1pppppp1/8/3rR3/3Rr3/8/7P/RNBQKBNR");
         //LoadMapFromNotation("3k4/8/8/8/8/8/8/R3K2R");
-        LoadMapFromNotation("3k4/8/8/8/3Q4/8/8/4K3");
+        //LoadMapFromNotation("3k4/8/8/8/3Q4/8/8/4K3");
     }
 
     private void LoadMapFromNotation(String Notation) {

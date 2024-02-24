@@ -17,7 +17,7 @@ import static java.awt.Font.*;
 public class BoardDisplay {
 
     public boolean White;
-
+    public boolean turn;
     public  JFrame frame;
     public SimplePiece[][] Board;
     Image[] imgList;
@@ -37,10 +37,8 @@ public class BoardDisplay {
     public BoardDisplay(boolean white, PlayerMaster master) {
         this.White = white;
         possibleMoves = new ArrayList<>();
+        Board = new SimplePiece[8][8];
         this.master = master;
-        //LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-
-
     }
 
     public void printMap() {
@@ -185,7 +183,7 @@ public class BoardDisplay {
         //gatekeeping
         if((possibleMoves == null || !possibleMoves.contains(X + "" + Y))){ return;} //This location is irrelvant, skip
 
-        Color HighlightColor = (this.White == SelectedPiece.white)? new Color(0, 200, 0, 200) : new Color(200, 0, 0, 200) ;
+        Color HighlightColor = (this.White == SelectedPiece.white && turn)? new Color(0, 200, 0, 200) : new Color(200, 0, 0, 200) ;
 
         g.setColor(HighlightColor);
 
@@ -237,21 +235,21 @@ public class BoardDisplay {
             public void mousePressed(MouseEvent e) {
                 //Used for dragging
                 //gets current mouse pos (and sends to server)
-                int MouseX = MouseX = (e.getX() -MARGIN); ;
-                int MouseY = MouseY = (e.getY()- (MARGIN + 32));
+                int Mx = MouseX = (e.getX() -MARGIN); ;
+                int My = MouseY = (e.getY()- (MARGIN + 32));
 
 
                 //if mouse is out of range, ignore
-                if (MouseY > BOARD_HEIGHT || MouseY < 0
-                        || MouseX > BOARD_WIDTH || MouseX < 0) { return;}
+                if (My > BOARD_HEIGHT || My < 0
+                        || Mx > BOARD_WIDTH || Mx < 0) { return;}
 
 
-                MouseX /= SQUARE_SIZE;
-                MouseY /= SQUARE_SIZE;
+                Mx /= SQUARE_SIZE;
+                My /= SQUARE_SIZE;
 
-                if (MouseX >= 8 || MouseY >= 8) {return;}   //gatekeeping if mouse is out of range of array, but shoulnt happen
+                if (Mx >= 8 || My >= 8) {return;}   //gatekeeping if mouse is out of range of array, but shoulnt happen
 
-                SelectedPiece = Board[MouseX][MouseY];
+                SelectedPiece = Board[Mx][My];
                 if (SelectedPiece == null) {return;}      //not clicking a piece, exit here
 
                 //Sends piece to server
@@ -305,7 +303,7 @@ public class BoardDisplay {
             public void mouseDragged(MouseEvent e) {        //keeps the selected piece in range
                 if ( SelectedPiece == null) {return;}
                 MouseX = e.getX();
-                 MouseY = e.getY();
+                MouseY = e.getY();
                 //keep in range of Y
                 if ( MouseY >  BOARD_HEIGHT+  MARGIN) { MouseY =  BOARD_HEIGHT+  MARGIN;}
                 else if ( MouseY <  MARGIN) { MouseY =  MARGIN;}

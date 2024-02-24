@@ -14,7 +14,7 @@ public class PlayerClient extends Client{
             System.out.println(packetHeader);
             switch (packetHeader){
                 case WELCOME:
-                    sendMessage(PacketHeader.WELCOME, "hahhahaha");
+                    Master.receiveWelcomePack(readNextString());
                     break;
                 case MOVE:
                     sendMessage(PacketHeader.TURN_PROMPT, "HI");
