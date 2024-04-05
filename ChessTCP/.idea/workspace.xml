@@ -10,10 +10,8 @@
     <list default="true" id="174d0ed8-668b-411d-8b4e-0259eb6b5687" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/Piece.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/Piece.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/Server.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,7 +41,7 @@
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;
   }
 }</component>
-  <component name="RunManager" selected="Application.ClientRuntime">
+  <component name="RunManager" selected="Application.ServerRuntime">
     <configuration name="ClientRuntime-2" type="Application" factoryName="Application" singleton="false">
       <option name="MAIN_CLASS_NAME" value="com.starlight.chessTCP.Client" />
       <module name="ChessTCP" />
@@ -107,6 +105,11 @@
           <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/Piece.java</url>
           <line>486</line>
           <option name="timeStamp" value="51" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java</url>
+          <line>149</line>
+          <option name="timeStamp" value="53" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

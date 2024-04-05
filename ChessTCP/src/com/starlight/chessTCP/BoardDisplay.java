@@ -121,27 +121,26 @@ public class BoardDisplay {
 
                         g.fillRect(X * SQUARE_SIZE + MARGIN, Y * SQUARE_SIZE + MARGIN, SQUARE_SIZE, SQUARE_SIZE);
                         Highlight(g,X,Y);
+                        DrawPiece(g,X,Y);
                     }
                     white = !white;
                 }
-                DrawPieces(g);
-            }
-            private void DrawPieces(Graphics g) {
-                for (SimplePiece[] Row :
-                        Board) {
-                    for (SimplePiece p:
-                            Row) {
-                        if (p == null) {continue;}  //No piece at this location, skip
-                        int imageVal = p.getImageval();     //get image from piece
-                        if (p == SelectedPiece) {   //if piece is selected, render on mouse not at bass location
-                            g.drawImage(imgList[imageVal], MouseX, MouseY, this);
-                        }
-                        else{   //renders at piece location
-                            g.drawImage(imgList[imageVal], p.getX() * SQUARE_SIZE + MARGIN, p.getY() * SQUARE_SIZE+MARGIN, this);
-                        }
 
-                    }
-                }
+
+
+                g.setColor(Color.BLACK);
+                g.setFont(new Font("serif", ROMAN_BASELINE, turn? 20: 15));
+                g.drawString(turn? "Your turn" : "Opponent's turn", MARGIN, BOARD_HEIGHT - MARGIN);
+
+                if (SelectedPiece == null) {return;}
+                g.drawImage(imgList[SelectedPiece.getImageval()], MouseX, MouseY, this);
+            }
+            private void DrawPiece(Graphics g, int x, int y) {
+                SimplePiece p = Board[x][y];
+                if (p == null || p == SelectedPiece) {return;}  //No piece at this location, skip
+                int imageVal = p.getImageval();     //get image from piece
+                g.drawImage(imgList[imageVal], p.getX() * SQUARE_SIZE + MARGIN, p.getY() * SQUARE_SIZE+MARGIN, this);
+
             }
         };
         frame.add(pn);

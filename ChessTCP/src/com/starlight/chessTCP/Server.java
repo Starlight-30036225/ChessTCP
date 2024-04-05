@@ -31,12 +31,15 @@ public abstract class Server implements Runnable {
             int IDCounter = 0;
             while (!done) {
                 Socket client = boss.accept();  //Accepts incoming connection
+
                 ConnectionHandler handler = new ConnectionHandler(client, IDCounter++);  //Binds client to a connection handler, assigns an ID according to
+
                 clients.add(handler);
 
                 pool.execute(handler);  //Places new connection handler into thread pool to execute seperately
             }
-        } catch (Exception e) {
+        } catch (Exception e) {     //Any errors during this loop will be caught here, shutdown the server and print the error
+            System.out.println(e.getMessage());
             this.shutdown();
         }
     }
@@ -49,7 +52,7 @@ public abstract class Server implements Runnable {
                 boss.close();
             }
             for (ConnectionHandler ch : clients) {
-                ch.CHshutdown();
+                ch.CHshutdown();    //shuts down all attached clients
             }
         } catch (Exception ignored){}
     }
@@ -63,7 +66,7 @@ public abstract class Server implements Runnable {
         private final Socket client;
         private BufferedReader in;
         private PrintWriter out;
-        private String nickname;
+        //private String nickname;
 
         private int ID;
 

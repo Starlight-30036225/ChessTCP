@@ -26,7 +26,7 @@ public abstract class Client implements Runnable {
             Boss = new Socket(IP, port);  //Attempts to connect to server with given IP and port from constructor
             out = new PrintWriter(Boss.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(Boss.getInputStream()));
-            //System.out.println("Connected to server");
+
             while (!done) {
                 receivePacketHeader();
             }
