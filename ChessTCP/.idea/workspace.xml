@@ -9,8 +9,7 @@
   <component name="ChangeListManager">
     <list default="true" id="174d0ed8-668b-411d-8b4e-0259eb6b5687" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/Server.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -41,7 +40,7 @@
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;
   }
 }</component>
-  <component name="RunManager" selected="Application.ServerRuntime">
+  <component name="RunManager" selected="Application.ClientRuntime">
     <configuration name="ClientRuntime-2" type="Application" factoryName="Application" singleton="false">
       <option name="MAIN_CLASS_NAME" value="com.starlight.chessTCP.Client" />
       <module name="ChessTCP" />

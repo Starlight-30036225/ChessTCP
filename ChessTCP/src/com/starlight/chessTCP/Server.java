@@ -68,7 +68,7 @@ public abstract class Server implements Runnable {
         private PrintWriter out;
         //private String nickname;
 
-        private int ID;
+        public int ID;
 
         private boolean active;
 

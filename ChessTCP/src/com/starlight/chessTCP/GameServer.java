@@ -1,38 +1,39 @@
 package com.starlight.chessTCP;
-import java.util.List;
+import java.util.*;
 
 public class GameServer extends Server{
 
-    GameMaster game;
+    //GameMaster game;
 
-    ConnectionHandler WhitePlayer;
-    ConnectionHandler BlackPlayer;
+    Map<ConnectionHandler, GameMaster> roomMap;
 
-    boolean white = true;
+
 
     boolean testmode = false;
 
     public GameServer(int port) {
         super(port);
-        game = new GameMaster();
+        roomMap = new HashMap<>();
+        //game = new GameMaster();
     }
 
     @Override
     public void HandlePacket(ConnectionHandler Handler, PacketHeader packetHeader) {
+        GameMaster room = roomMap.get(Handler);
         System.out.println(packetHeader);
         switch (packetHeader){
             case WELCOME:
                 System.out.println("Connected");
                 break;
             case MOVE:
-                HandleMove(Handler);
+                HandleMove(Handler, room);
                 break;
             case BOARD_STATE:
                 break;
             case TURN_PROMPT:
                 break;
             case SELECT_PIECE:
-                HandleSelect_Piece(Handler);
+                HandleSelect_Piece(Handler, room);
                 break;
             case POSSIBLE_MOVES:
                 break;
@@ -42,35 +43,37 @@ public class GameServer extends Server{
 
         }
     }
-    private void HandleMove(ConnectionHandler Handler){
+    private void HandleMove(ConnectionHandler Handler, GameMaster room){
+
         String Composite = Handler.readNextString();
 
         if (!testmode && Handler !=
-                (white? WhitePlayer :BlackPlayer)) {return;}
+                (room.white? room.WhitePlayer :room.BlackPlayer)) {return;}
 
         //gets the start location of the move/piece location
         int Piecex = Character.getNumericValue(Composite.charAt(0));
         int Piecey = Character.getNumericValue(Composite.charAt(1));
 
-        if (game.board[Piecex][Piecey] == null ||
-                (!testmode && game.board[Piecex][Piecey].white != white)) {return;} //Piece is invalid or wrong colour
+        if (room.board[Piecex][Piecey] == null ||
+                (!testmode && room.board[Piecex][Piecey].white != room.white)) {return;} //Piece is invalid or wrong colour
 
         //gets the end location of the move
         int Movex = Character.getNumericValue(Composite.charAt(2));
         int Movey = Character.getNumericValue(Composite.charAt(3));
 
-        if (!game.board[Piecex][Piecey].move(game.board,Movex+ "" + Movey)) {return;}   //move failed, exit here
+        if (!room.board[Piecex][Piecey].move(room.board,Movex+ "" + Movey)) {return;}   //move failed, exit here
         for (ConnectionHandler H:
                 clients) {
-            H.sendMessage(PacketHeader.BOARD_STATE, game.LoadNotationFromMap());    //Update all clients of the move
+            if (roomMap.get(H) != room){continue;}  //GateKeeping --- Needs improvement
+            H.sendMessage(PacketHeader.BOARD_STATE, room.LoadNotationFromMap());    //Update all clients of the move
         }
 
         if (testmode) {return;}
-        white = !white;
+        room.white = !room.white;
 
 
     }
-    private void HandleSelect_Piece(ConnectionHandler Handler) {
+    private void HandleSelect_Piece(ConnectionHandler Handler, GameMaster room) {
         String Location = Handler.readNextString();
 
         //seperate location into x and y components
@@ -78,7 +81,7 @@ public class GameServer extends Server{
         int y = Character.getNumericValue(Location.charAt(1));
 
         String CompositeMoveString = "";    //will hold all possible tiles the piece can move too
-        for (String Move :game.getPossibleMoves(x,y)){  //loops through all moves found from pieces function
+        for (String Move :room.getPossibleMoves(x,y)){  //loops through all moves found from pieces function
             CompositeMoveString += Move;
 
         }
@@ -87,19 +90,30 @@ public class GameServer extends Server{
     }
     @Override
     protected void SendWelcomeMessage(ConnectionHandler CH) {
-
-
-
+        Collection<GameMaster> AllRooms = roomMap.values();
+        GameMaster room = null;
+        for (GameMaster temproom:
+             AllRooms) {
+            if ((temproom.WhitePlayer == null || temproom.BlackPlayer == null)) {
+                room = temproom;
+                break;
+            }
+        }
+        if (room == null){
+            room = new GameMaster();
+        }
         if (!testmode) {
-            if (WhitePlayer == null) {
-                WhitePlayer = CH;
+            if (room.WhitePlayer == null) {
+                room.WhitePlayer = CH;
+                roomMap.put(CH, room);
                 CH.sendMessage(PacketHeader.WELCOME, "WHITE");
-            } else if (BlackPlayer == null) {
-                BlackPlayer = CH;
+            } else if (room.BlackPlayer == null) {
+                room.BlackPlayer = CH;
+                roomMap.put(CH, room);
                 CH.sendMessage(PacketHeader.WELCOME, "BLACK");
             }
         }
-        CH.sendMessage(PacketHeader.BOARD_STATE, game.LoadNotationFromMap());
+        CH.sendMessage(PacketHeader.BOARD_STATE, room.LoadNotationFromMap());
 
     }
 }
@@ -107,6 +121,13 @@ public class GameServer extends Server{
 class GameMaster {
 
     Piece[][] board;
+
+
+    boolean white = true;
+
+    public Server.ConnectionHandler WhitePlayer;
+    public Server.ConnectionHandler BlackPlayer;
+    String password = "";
     public GameMaster(){
         LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
         //LoadMapFromNotation("rnbqkbnr/1pppppp1/8/3rR3/3Rr3/8/7P/RNBQKBNR");
