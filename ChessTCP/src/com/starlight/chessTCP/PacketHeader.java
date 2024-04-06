@@ -8,8 +8,7 @@ public enum PacketHeader {
     SELECT_PIECE,
     POSSIBLE_MOVES,
     MOVE,
-
-
+    ROOM_INFO
 
 
 }

@@ -37,6 +37,8 @@ public class GameServer extends Server{
                 break;
             case POSSIBLE_MOVES:
                 break;
+            case ROOM_INFO:
+                AssignClientRoom(Handler);
             default:
                 break;
 
@@ -90,18 +92,29 @@ public class GameServer extends Server{
     }
     @Override
     protected void SendWelcomeMessage(ConnectionHandler CH) {
-        Collection<GameMaster> AllRooms = roomMap.values();
-        GameMaster room = null;
+        List<GameMaster> AllRooms = roomMap.values().stream().toList();
+        String infoString = "";
         for (GameMaster temproom:
-             AllRooms) {
-            if ((temproom.WhitePlayer == null || temproom.BlackPlayer == null)) {
-                room = temproom;
-                break;
-            }
+                AllRooms) {
+            String temp;
+            temp = temproom.Connections + "_" + (Objects.equals(temproom.password, "") ? 'N' : 'Y');
+            infoString += temp;
         }
-        if (room == null){
+        if (infoString.equals("")) {infoString = "...";}
+        CH.sendMessage(PacketHeader.ROOM_INFO, infoString);
+    }
+
+    private void AssignClientRoom(ConnectionHandler CH) {
+        String RoomSelection = CH.readNextString();
+        GameMaster room = null;
+        int selection = RoomSelection.charAt(0) - 48;
+        if (selection == 0){
             room = new GameMaster();
         }
+        else{
+            room = roomMap.values().stream().toList().get(selection - 1);
+        }
+
         if (!testmode) {
             if (room.WhitePlayer == null) {
                 room.WhitePlayer = CH;
@@ -113,6 +126,7 @@ public class GameServer extends Server{
                 CH.sendMessage(PacketHeader.WELCOME, "BLACK");
             }
         }
+        room.Connections++;
         CH.sendMessage(PacketHeader.BOARD_STATE, room.LoadNotationFromMap());
 
     }
@@ -122,13 +136,15 @@ class GameMaster {
 
     Piece[][] board;
 
-
     boolean white = true;
 
     public Server.ConnectionHandler WhitePlayer;
     public Server.ConnectionHandler BlackPlayer;
+
+    public Integer Connections;
     String password = "";
     public GameMaster(){
+        Connections = 0;
         LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
         //LoadMapFromNotation("rnbqkbnr/1pppppp1/8/3rR3/3Rr3/8/7P/RNBQKBNR");
         //LoadMapFromNotation("3k4/8/8/8/8/8/8/R3K2R");
