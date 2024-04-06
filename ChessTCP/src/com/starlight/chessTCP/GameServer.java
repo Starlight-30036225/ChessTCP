@@ -1,5 +1,6 @@
 package com.starlight.chessTCP;
 import java.util.*;
+import java.util.stream.Stream;
 
 public class GameServer extends Server{
 
@@ -90,9 +91,9 @@ public class GameServer extends Server{
         //sends all moves back to client
         Handler.sendMessage(PacketHeader.POSSIBLE_MOVES, CompositeMoveString);
     }
-    @Override
-    protected void SendWelcomeMessage(ConnectionHandler CH) {
-        List<GameMaster> AllRooms = roomMap.values().stream().toList();
+
+    protected void SendRoomInfo(ConnectionHandler Handler) {
+        List<GameMaster> AllRooms = roomMap.values().stream().distinct().toList();
         String infoString = "";
         for (GameMaster temproom:
                 AllRooms) {
@@ -101,34 +102,56 @@ public class GameServer extends Server{
             infoString += temp;
         }
         if (infoString.equals("")) {infoString = "...";}
-        CH.sendMessage(PacketHeader.ROOM_INFO, infoString);
+        Handler.sendMessage(PacketHeader.ROOM_INFO, infoString);
     }
 
-    private void AssignClientRoom(ConnectionHandler CH) {
-        String RoomSelection = CH.readNextString();
+    private void AssignClientRoom(ConnectionHandler Handler) {
+        String RoomSelection = Handler.readNextString();
         GameMaster room = null;
+        String password = "";
         int selection = RoomSelection.charAt(0) - 48;
+        if (RoomSelection.length() > 1) {password = RoomSelection.substring(1);}
         if (selection == 0){
             room = new GameMaster();
+            room.password = password;
         }
         else{
-            room = roomMap.values().stream().toList().get(selection - 1);
+            room = roomMap.values().stream().distinct().toList().get(selection - 1);
+            if (!Objects.equals(room.password, password)){
+                Handler.sendMessage(PacketHeader.MISC, "Incorrect Password.");
+                SendRoomInfo(Handler);
+                return;
+            }
         }
+
 
         if (!testmode) {
             if (room.WhitePlayer == null) {
-                room.WhitePlayer = CH;
-                roomMap.put(CH, room);
-                CH.sendMessage(PacketHeader.WELCOME, "WHITE");
+                room.WhitePlayer = Handler;
+                roomMap.put(Handler, room);
+                Handler.sendMessage(PacketHeader.WELCOME, "WHITE");
             } else if (room.BlackPlayer == null) {
-                room.BlackPlayer = CH;
-                roomMap.put(CH, room);
-                CH.sendMessage(PacketHeader.WELCOME, "BLACK");
+                room.BlackPlayer = Handler;
+                roomMap.put(Handler, room);
+                Handler.sendMessage(PacketHeader.WELCOME, "BLACK");
             }
         }
         room.Connections++;
-        CH.sendMessage(PacketHeader.BOARD_STATE, room.LoadNotationFromMap());
 
+        if(room.Connections > 1) {
+            for (ConnectionHandler CH:
+                    clients) {
+                if (roomMap.get(CH) != room) {
+                    continue;
+                }  //GateKeeping --- Needs improvement
+                CH.sendMessage(PacketHeader.BOARD_STATE, room.LoadNotationFromMap());
+            }
+        }
+    }
+
+    @Override
+    protected void SendWelcomeMessage(ConnectionHandler Handler) {
+        SendRoomInfo(Handler);
     }
 }
 
@@ -146,9 +169,6 @@ class GameMaster {
     public GameMaster(){
         Connections = 0;
         LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-        //LoadMapFromNotation("rnbqkbnr/1pppppp1/8/3rR3/3Rr3/8/7P/RNBQKBNR");
-        //LoadMapFromNotation("3k4/8/8/8/8/8/8/R3K2R");
-        //LoadMapFromNotation("3k4/8/8/8/3Q4/8/8/4K3");
     }
 
     private void LoadMapFromNotation(String Notation) {

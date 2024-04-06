@@ -34,6 +34,10 @@ public class PlayerClient extends Client{
                     break;
                 case ROOM_INFO:
                     SelectRoom();
+                    break;
+                case MISC:
+                    System.out.println(readNextString());
+                    break;
                 default:
                     break;
 
@@ -73,7 +77,7 @@ public class PlayerClient extends Client{
                 Password = sc.nextLine();
             }
             sendMessage(PacketHeader.ROOM_INFO, selection - 1 + Password);
-            break;
+            return;
         }
     }
 
