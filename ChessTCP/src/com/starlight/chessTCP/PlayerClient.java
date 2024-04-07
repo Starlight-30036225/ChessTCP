@@ -1,64 +1,52 @@
 package com.starlight.chessTCP;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 
 public class PlayerClient extends Client{
-    public PlayerClient(String IP, int port, PlayerMaster Master) {
+
+    private final GameHandler master;        //Reference the interface of the owner
+    public PlayerClient(String IP, int port, GameHandler Master) {
         super(IP, port);
-        this.Master = Master;
+        this.master = Master;
     }
-    private PlayerMaster Master;        //Reference to owner
     @Override
-    protected void HandlePacket(PacketHeader packetHeader) {
-            System.out.println(packetHeader);
-            switch (packetHeader){
-                case WELCOME:
-                    Master.receiveWelcomePack(readNextString());
-                    break;
-                case MOVE:
-                    break;
-                case BOARD_STATE:
-                    Master.recieveBoardStatus(readNextString());
-                    break;
-                case TURN_PROMPT:
-                    break;
-                case SELECT_PIECE:
-                    break;
-                case POSSIBLE_MOVES:
-                    SeperateMoveList();
-                    break;
-                case ROOM_INFO:
-                    SelectRoom();
-                    break;
-                case MISC:
-                    System.out.println(readNextString());
-                    break;
-                case PROMOTION:
-                    readNextString(); //Clear buffer
-                    Master.RecievePromotionPrompt();
-                    break;
-                default:
-                    break;
+    protected void handlePacket(PacketHeader packetHeader) {
+        System.out.println(packetHeader);
+        switch (packetHeader) {
+            case WELCOME -> master.receiveWelcomePack(readNextString());
 
+            case BOARD_STATE -> master.receiveBoardStatus(readNextString());
 
+            case POSSIBLE_MOVES -> separateMoveList();
+
+            case ROOM_INFO -> selectRoom();
+
+            case MISC -> System.out.println(readNextString());
+
+            case PROMOTION -> {
+                readNextString(); //Clear buffer
+                master.receivePromotionPrompt();
             }
 
+            default -> {
+            }
+        }
+
     }
 
-    private void SelectRoom(){
+    private void selectRoom(){
         Scanner sc = new Scanner(System.in); //System.in is a standard input stream
-        String Rooms = readNextString();
-        String Password = "";
+        String roomList = readNextString();
+        String password = "";
         int selection;
         System.out.println("1: Create new room");
-        if (!Objects.equals(Rooms, "...")) {
-            for (int i = 0; i < Rooms.length() / 3; i++) {
-                System.out.println((i + 2) + ": " + Rooms.charAt(i * 3) + " Connected - " +
-                        (Rooms.charAt((i * 3) + 2) == (char) 'Y' ? "Locked" : "Open"));
+        if (!Objects.equals(roomList, "...")) {
+            for (int i = 0; i < roomList.length() / 3; i++) {
+                System.out.println((i + 2) + ": " + roomList.charAt(i * 3) + " Connected - " +
+                        (roomList.charAt((i * 3) + 2) == 'Y' ? "Locked" : "Open"));
             }
         }
         while (true) {
@@ -68,31 +56,30 @@ public class PlayerClient extends Client{
                 System.out.println("Invalid selection");
                 continue;
             }
-            if (selection > (Rooms.length() / 3) + 2 || selection < 0){
+            if (selection > (roomList.length() / 3) + 2 || selection < 0){
                 System.out.println("Invalid selection");
                 continue;
             }
             if (selection == 1){
                 System.out.println("Enter password, leave black for no password:");
-                Password = sc.nextLine();
-            } else if (Rooms.charAt(((selection - 2) * 3) + 2) == (char) 'Y'){
+                password = sc.nextLine();
+            } else if (roomList.charAt(((selection - 2) * 3) + 2) == 'Y'){
                 System.out.println("Enter password");
-                Password = sc.nextLine();
+                password = sc.nextLine();
             }
-            sendMessage(PacketHeader.ROOM_INFO, selection - 1 + Password);
+            sendMessage(PacketHeader.ROOM_INFO, selection - 1 + password);
             return;
         }
     }
 
-    private void SeperateMoveList() {
+    private void separateMoveList() {
+        //move list is received as one long string
+        List<String> moveList = new ArrayList<>();
+        String possibleMoves = readNextString();
 
-        //move list is recieved as one long string
-        List<String> MoveList = new ArrayList<>();
-        String PossibleMoves = readNextString();
-
-        for (int i = 0; i < PossibleMoves.length() - 1; i += 2){
-            MoveList.add(PossibleMoves.substring(i, i+2));  //takes every set of 2 characters and adds them to the list
+        for (int i = 0; i < possibleMoves.length() - 1; i += 2){
+            moveList.add(possibleMoves.substring(i, i+2));  //takes every set of 2 characters and adds them to the list
         }
-        Master.receivePossibleMoves(MoveList);  //sends resulting list to master object
+        master.receivePossibleMoves(moveList);  //sends resulting list to master object
     }
 }

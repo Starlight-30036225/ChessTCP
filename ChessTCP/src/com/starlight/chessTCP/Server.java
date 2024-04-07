@@ -14,9 +14,8 @@ public abstract class Server implements Runnable {
 
     protected final ArrayList<ConnectionHandler> clients;
     private ServerSocket boss;
-    private ExecutorService pool;
     private boolean done;
-    private int port;
+    private final int port;
 
     public Server(int port) {
         this.port = port;
@@ -27,7 +26,7 @@ public abstract class Server implements Runnable {
     public void run() {
         try {
             boss = new ServerSocket(port);  //Creates a server socket at port given in constructor
-            pool = Executors.newCachedThreadPool();
+            ExecutorService pool = Executors.newCachedThreadPool();
             int IDCounter = 0;
             while (!done) {
                 Socket client = boss.accept();  //Accepts incoming connection
@@ -36,7 +35,7 @@ public abstract class Server implements Runnable {
 
                 clients.add(handler);
 
-                pool.execute(handler);  //Places new connection handler into thread pool to execute seperately
+                pool.execute(handler);  //Places new connection handler into thread pool to execute separately
             }
         } catch (Exception e) {     //Any errors during this loop will be caught here, shutdown the server and print the error
             System.out.println(e.getMessage());
@@ -52,14 +51,14 @@ public abstract class Server implements Runnable {
                 boss.close();
             }
             for (ConnectionHandler ch : clients) {
-                ch.CHshutdown();    //shuts down all attached clients
+                ch.localShutdown();    //shuts down all attached clients
             }
         } catch (Exception ignored){}
     }
 
-    public abstract void HandlePacket(ConnectionHandler Handler, PacketHeader packetHeader);
+    public abstract void handlePacket(ConnectionHandler handler, PacketHeader packetHeader);
 
-    protected abstract void SendWelcomeMessage(ConnectionHandler connectionHandler);
+    protected abstract void sendWelcomeMessage(ConnectionHandler connectionHandler);
 
     class ConnectionHandler implements Runnable {
 
@@ -70,7 +69,6 @@ public abstract class Server implements Runnable {
 
         public int ID;
 
-        private boolean active;
 
         public ConnectionHandler(Socket client, int ID) {
             this.client = client;
@@ -82,12 +80,12 @@ public abstract class Server implements Runnable {
                 out = new PrintWriter(client.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
-                SendWelcomeMessage(this);
+                sendWelcomeMessage(this);
                 while (!done) {
                     receivePacketHeader();
                 }
             } catch (Exception e) {
-                this.CHshutdown();
+                this.localShutdown();
             }
 
         }
@@ -110,15 +108,15 @@ public abstract class Server implements Runnable {
         public void receivePacketHeader() {
             try {
                 String packetString = readNextString();
-                HandlePacket(this, PacketHeader.valueOf(packetString));
+                handlePacket(this, PacketHeader.valueOf(packetString));
 
             } catch (Exception e) {
-                System.out.println(e);
+                //System.out.println(e);
             }
 
         }
 
-        public void CHshutdown() { //Something has gone wrong or game is over, terminate Client Connection
+        public void localShutdown() { //Something has gone wrong or game is over, terminate Client Connection
             try {
                 in.close();
                 out.close();

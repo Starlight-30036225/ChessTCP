@@ -9,9 +9,7 @@ public enum PacketHeader {
     POSSIBLE_MOVES,
     MOVE,
     ROOM_INFO,
-
     MISC,
-
     PROMOTION,
 
 

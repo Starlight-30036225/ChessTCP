@@ -16,67 +16,64 @@ import static java.awt.Font.*;
 
 public class BoardDisplay {
 
-    public boolean White;
+    public boolean white;
 
     public boolean spectator;
     public boolean turn;
     public  JFrame frame;
-    public SimplePiece[][] Board;
+    public SimplePiece[][] board;
     Image[] imgList;
     public  List<String> possibleMoves;
 
     PlayerMaster master;
-    SimplePiece SelectedPiece;
-    int MouseX, MouseY;
+    SimplePiece selectedPiece;
+    int mouseX, mouseY;
 
     boolean promotion;
-
     public final int MARGIN = 32;
     public final int BOARD_WIDTH = 528;
     public final int BOARD_HEIGHT = 600;
     public final int SQUARE_SIZE = 64;
     public BoardDisplay(boolean white, PlayerMaster master) {
-        this.White = white;
+        this.white = white;
         possibleMoves = new ArrayList<>();
-        Board = new SimplePiece[8][8];
+        board = new SimplePiece[8][8];
         this.master = master;
         promotion = false;
     }
 
     public void printMap() {
 
-        ExtractImages();
+        extractImages();
 
         frame = getFrame();
 
-        PaintFrame(frame);
+        paintFrame(frame);
 
         //SetUpMouseListeners(frame);
         frame.setVisible(true);
         SetUpMouseListeners(frame);
     }
 
-    private void ExtractImages() {
-        BufferedImage BaseImage;
-
+    private void extractImages() {
+        BufferedImage baseImage;
         //gets sprite sheet
         try {
-            BaseImage = ImageIO.read(new File("src/Resources/chess2.png"));
+            baseImage = ImageIO.read(new File("src/Resources/chess2.png"));
         } catch (IOException e) {
             System.out.println("Couldn't find image");
             throw new RuntimeException(e);
         }
 
         imgList = new Image[12];        //Creates an array of 12 images
-        int width = BaseImage.getWidth();
-        int height = BaseImage.getHeight();
-
-        int ind = 0;        //saves the index
+        int width = baseImage.getWidth();
+        int height = baseImage.getHeight();
+        int i = 0;        //saves the index
 
         for (int y = 0; y < height; y += height/2) {
             for (int x = 0; x < width; x += width /6) {
-                imgList[ind] = BaseImage.getSubimage(x, y, width/6, height/2).getScaledInstance(SQUARE_SIZE, SQUARE_SIZE, BufferedImage.SCALE_SMOOTH);
-                ind++;
+                imgList[i] = baseImage.getSubimage(x, y, width/6, height/2).getScaledInstance(SQUARE_SIZE, SQUARE_SIZE, BufferedImage.SCALE_SMOOTH);
+                i++;
             }
         }
     }
@@ -92,7 +89,7 @@ public class BoardDisplay {
         frame.setBackground(Color.LIGHT_GRAY);
         return frame;
     }
-    private void PaintFrame(JFrame frame) {
+    private void paintFrame(JFrame frame) {
         JPanel pn = new JPanel() {
             @Override
             public void paint(Graphics g) {
@@ -100,12 +97,13 @@ public class BoardDisplay {
                 String rank;
                 String file;
                 boolean white = true;       //FlipFlops
+
                 for (int Y = 0; Y < 8; Y++) {       //8 rows and 8 cols
 
                     // add text to label
                     g.setColor(Color.BLACK);
-                    rank = String.valueOf(!White? (Y + 1) : 8 - Y); //Numbers on side
-                    file = String.valueOf(White? (char) ((Y ) + 97) : (char) ((7 - Y ) + 97));      //Letters across top
+                    rank = String.valueOf(!BoardDisplay.this.white ? (Y + 1) : 8 - Y); //Numbers on side
+                    file = String.valueOf(BoardDisplay.this.white ? (char) ((Y ) + 97) : (char) ((7 - Y ) + 97));      //Letters across top
 
                     g.drawString(rank, MARGIN/2, (int) (Y * SQUARE_SIZE + (MARGIN * 2.3)));
                     g.drawString(file, (Y * SQUARE_SIZE + (MARGIN * 2)),MARGIN/2);
@@ -122,8 +120,8 @@ public class BoardDisplay {
                         white = !white;  //flips the flop
 
                         g.fillRect(X * SQUARE_SIZE + MARGIN, Y * SQUARE_SIZE + MARGIN, SQUARE_SIZE, SQUARE_SIZE);
-                        Highlight(g,X,Y);
-                        DrawPiece(g,X,Y);
+                        highlight(g,X,Y);
+                        drawPiece(g,X,Y);
                     }
                     white = !white;
                 }
@@ -131,30 +129,31 @@ public class BoardDisplay {
 
 
                 g.setColor(Color.BLACK);
-                g.setFont(new Font("serif", ROMAN_BASELINE, spectator? 20 : turn? 20: 15));
-                g.drawString(spectator? turn? "White's turn" : "Blacks's turn" :
+                g.setFont(new Font("serif", PLAIN, spectator? 20 : turn? 20: 15));
+                g.drawString(spectator? turn? "White's turn" : "Black's turn" :
                         turn? "Your turn" : "Opponent's turn", MARGIN, BOARD_HEIGHT - MARGIN);
-                if (promotion) {DrawPromotionPanel(g); return;}
-                if (SelectedPiece == null) {return;}
-                g.drawImage(imgList[SelectedPiece.getImageval()], MouseX, MouseY, this);
+                if (promotion) {
+                    drawPromotionPanel(g); return;}
+                if (selectedPiece == null) {return;}
+                g.drawImage(imgList[selectedPiece.getImageVal()], mouseX, mouseY, this);
 
             }
-            private void DrawPiece(Graphics g, int x, int y) {
-                SimplePiece p = Board[x][y];
-                if (p == null || p == SelectedPiece) {return;}  //No piece at this location, skip
-                int imageVal = p.getImageval();     //get image from piece
+            private void drawPiece(Graphics g, int x, int y) {
+                SimplePiece p = board[x][y];
+                if (p == null || p == selectedPiece) {return;}  //No piece at this location, skip
+                int imageVal = p.getImageVal();     //get image from piece
                 g.drawImage(imgList[imageVal], p.getX() * SQUARE_SIZE + MARGIN, p.getY() * SQUARE_SIZE+MARGIN, this);
 
             }
 
-            private void DrawPromotionPanel(Graphics g) {
+            private void drawPromotionPanel(Graphics g) {
 
                 g.setColor(Color.CYAN);
                 g.fillRect(0,0,64,256);
                 g.setColor(Color.BLUE);
                 g.drawRect(0,0,64,256);
 
-                int color = White? 1 : 7;
+                int color = white ? 1 : 7;
                 for (int i = 0; i < 4; i++) {
                     g.drawImage(imgList[(color + i)], 0, i * 64, this);
                 }
@@ -164,15 +163,15 @@ public class BoardDisplay {
         frame.add(pn);
     }
 
-    public void LoadMapFromNotation(String Notation) {
-        Board = new SimplePiece[8][8];    //Initialises the Pieces map
+    public void loadMapFromNotation(String notation) {
+        board = new SimplePiece[8][8];    //Initialises the Pieces map
         int x = 0;                      //Starts at 0,0 (top left)
         int y = 0;
-        if (!this.White) {Notation = new StringBuilder(Notation).reverse().toString();}      //This will flip the notation to show black at the bottom
+        if (!this.white) {notation = new StringBuilder(notation).reverse().toString();}      //This will flip the notation to show black at the bottom
 
 
         for (Character c :               //Iterates through every character in the notation string
-                Notation.toCharArray()) {
+                notation.toCharArray()) {
 
             if (x > 7) {
                 x = 0;
@@ -189,29 +188,29 @@ public class BoardDisplay {
             else {       //Otherwise, this slot should contain a piece
                 boolean white;
                 white = Character.isUpperCase(c);       //Capital is a white piece, lower case is black
-                Board[x][y] = new SimplePiece(Character.toLowerCase(c), x, y, white);        //Uses the factory method inside Piece to create a Piece of the correct class
+                board[x][y] = new SimplePiece(Character.toLowerCase(c), x, y, white);        //Uses the factory method inside Piece to create a Piece of the correct class
                 x++;    //increments X (moving right)
             }
 
         }
     }
 
-    private void Highlight(Graphics g, int X, int Y) {
-        //gatekeeping
-        if((possibleMoves == null || !possibleMoves.contains(X + "" + Y))){ return;} //This location is irrelvant, skip
+    private void highlight(Graphics g, int x, int y) {
+        //gate-keeping
+        if((possibleMoves == null) || !possibleMoves.contains(x + String.valueOf(y))){ return;} //This location is irrelvant, skip
 
-        Color HighlightColor = ((this.White == SelectedPiece.white) && turn)?
+        Color highlightColor = ((this.white == selectedPiece.white) && turn)?
                 new Color(0, 200, 0, 200) : new Color(200, 0, 0, 200) ;
 
-        g.setColor(HighlightColor);
+        g.setColor(highlightColor);
 
         //If there is a piece at the location, the circle needs to be a lil bigger
-        int circleSize = Board[X][Y] == null? 24: 44;
-        int offset = Board[X][Y] == null? 20: 10;
-        g.fillOval(X * SQUARE_SIZE + MARGIN + offset, Y * SQUARE_SIZE + MARGIN + offset, circleSize, circleSize);
+        int circleSize = board[x][y] == null? 24: 44;
+        int offset = board[x][y] == null? 20: 10;
+        g.fillOval(x * SQUARE_SIZE + MARGIN + offset, y * SQUARE_SIZE + MARGIN + offset, circleSize, circleSize);
     }
 
-    public String FlipCoords(String Coords){        //flips coords from white layout to black layout or vice versa
+    public String flipCoords(String Coords){        //flips coords from white layout to black layout or vice versa
 
         int x = Character.getNumericValue(Coords.charAt(0)) + 1;
         int y = Character.getNumericValue(Coords.charAt(1)) + 1;
@@ -220,14 +219,14 @@ public class BoardDisplay {
         x--;
         y--;
 
-        return x + "" + y;
+        return x + String.valueOf(y);
     }
 
-    public void LoadPossibleMoves(List<String> newMoves){
+    public void loadPossibleMoves(List<String> newMoves){
         possibleMoves.clear();
         for (String s:
              newMoves) {
-            possibleMoves.add(this.White? s : FlipCoords(s));
+            possibleMoves.add(this.white ? s : flipCoords(s));
         }
     }
 
@@ -247,22 +246,22 @@ public class BoardDisplay {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (!promotion) {return;}
-                int MouseX = e.getX();
-                int MouseY = e.getY();
+                int mouseX = e.getX();
+                int mouseY = e.getY();
 
-                if (MouseX > 64 || MouseY < 0 || MouseY > 256 || MouseX < 0) {return;}  //If mouse it out of range, ignore
+                if (mouseX > 64 || mouseY < 0 || mouseY > 256 || mouseX < 0) {return;}  //If mouse it out of range, ignore
 
-                char PieceType; //Holds the type to be returned to the board
-                MouseY -= 32; //Accounts for border
-                switch (MouseY / 64) {
-                    case 0 -> PieceType = 'q';
-                    case 1 -> PieceType = 'b';
-                    case 2 -> PieceType = 'n';
-                    case 3 -> PieceType = 'r';
-                    default -> PieceType = 'q';
+                char pieceType; //Holds the type to be returned to the board
+                mouseY -= 32; //Accounts for border
+                switch (mouseY / 64) {
+                    case 0 -> pieceType = 'q';
+                    case 1 -> pieceType = 'b';
+                    case 2 -> pieceType = 'n';
+                    case 3 -> pieceType = 'r';
+                    default -> throw new RuntimeException("Invalid Piece");
                 }
-                PieceType = White? Character.toUpperCase(PieceType) : PieceType;
-                master.SendPromotion(PieceType);
+                pieceType = white ? Character.toUpperCase(pieceType) : pieceType;
+                master.sendPromotion(pieceType);
                 frame.repaint();
             }
 
@@ -271,53 +270,52 @@ public class BoardDisplay {
                 //Used for dragging
                 if (promotion) {return;}
                 //gets current mouse pos (and sends to server)
-                int Mx = MouseX = (e.getX() -MARGIN); ;
-                int My = MouseY = (e.getY()- (MARGIN + 32));
+                int mX = mouseX = (e.getX() -MARGIN);
+                int mY = mouseY = (e.getY()- (MARGIN + 32));
 
 
                 //if mouse is out of range, ignore
-                if (My > BOARD_HEIGHT || My < 0
-                        || Mx > BOARD_WIDTH || Mx < 0) { return;}
+                if (mY > BOARD_HEIGHT || mY < 0
+                        || mX > BOARD_WIDTH || mX < 0) { return;}
 
 
-                Mx /= SQUARE_SIZE;
-                My /= SQUARE_SIZE;
+                mX /= SQUARE_SIZE;
+                mY /= SQUARE_SIZE;
 
-                if (Mx >= 8 || My >= 8) {return;}   //gatekeeping if mouse is out of range of array, but shoulnt happen
+                if (mX == 8 || mY >= 8) {return;}   //gate-keeping if mouse is out of range of array, but shouldn't happen
 
-                SelectedPiece = Board[Mx][My];
-                if (SelectedPiece == null) {return;}      //not clicking a piece, exit here
+                selectedPiece = board[mX][mY];
+                if (selectedPiece == null) {return;}      //not clicking a piece, exit here
 
                 //Sends piece to server
-                String Location = SelectedPiece.getLocation();
+                String location = selectedPiece.getLocation();
 
-                if (!White) {Location = FlipCoords(Location);}
+                if (!white) {location = flipCoords(location);}
 
-                master.requestPossibleMoves(Location);
+                master.requestPossibleMoves(location);
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (promotion) {return;}
-                if (SelectedPiece == null) {return;}      //gatekeeping
-
+                if (selectedPiece == null) {return;}      //gate-keeping
 
                 //Gets mouse location as board coords
                 int x = ((e.getX() - MARGIN)/ (SQUARE_SIZE));
                 int y = ((e.getY() - (MARGIN + 32))/ (SQUARE_SIZE));
-                String Location = x + "" + y;
-                String PieceLocation = SelectedPiece.getLocation();
+                String location = x + String.valueOf(y);
+                String pieceLocation = selectedPiece.getLocation();
 
-                if (possibleMoves.contains(Location)) {   //Checks requested move is possible
-                    if (!White) {
-                        Location = FlipCoords(Location);
-                        PieceLocation = FlipCoords(SelectedPiece.getLocation());
+                if (possibleMoves.contains(location)) {   //Checks requested move is possible
+                    if (!white) {
+                        location = flipCoords(location);
+                        pieceLocation = flipCoords(selectedPiece.getLocation());
                     }
-                    master.requestMove(PieceLocation, Location);
+                    master.requestMove(pieceLocation, location);
                 }
 
                 //clear relevant data and redraw board
-                SelectedPiece =null;
+                selectedPiece =null;
                 possibleMoves.clear();
                 frame.repaint();
 
@@ -338,20 +336,20 @@ public class BoardDisplay {
             @Override
             public void mouseDragged(MouseEvent e) {        //keeps the selected piece in range
                 if (promotion) {return;}
-                if ( SelectedPiece == null) {return;}
-                MouseX = e.getX();
-                MouseY = e.getY();
+                if (selectedPiece == null) {return;}
+                mouseX = e.getX();
+                mouseY = e.getY();
                 //keep in range of Y
-                if ( MouseY >  BOARD_HEIGHT+  MARGIN) { MouseY =  BOARD_HEIGHT+  MARGIN;}
-                else if ( MouseY <  MARGIN) { MouseY =  MARGIN;}
+                if ( mouseY >  BOARD_HEIGHT+  MARGIN) { mouseY =  BOARD_HEIGHT+  MARGIN;}
+                else if ( mouseY <  MARGIN) { mouseY =  MARGIN;}
 
                 //Keep in range of X
-                if ( MouseX >  BOARD_HEIGHT+  MARGIN) { MouseX =  BOARD_HEIGHT+  MARGIN;}
-                else if ( MouseX <  MARGIN) { MouseX =  MARGIN;}
+                if ( mouseX >  BOARD_HEIGHT+  MARGIN) { mouseX =  BOARD_HEIGHT+  MARGIN;}
+                else if ( mouseX <  MARGIN) { mouseX =  MARGIN;}
 
                 //account for margin
-                 MouseX -=  MARGIN;
-                 MouseY -= ( MARGIN + 32);
+                 mouseX -=  MARGIN;
+                 mouseY -= ( MARGIN + 32);
                 //redraw with new mouse location
                 frame.repaint();
             }
@@ -379,7 +377,7 @@ class SimplePiece{
     int x,y;
     boolean white;
 
-    public int getImageval() {
+    public int getImageVal() {
         return type.BaseImageVal + (white? 0 : 6);
     }
 
@@ -393,6 +391,6 @@ class SimplePiece{
 
     public String getLocation(){
 
-        return x + "" + y;
+        return x + String.valueOf(y);
     }
 }

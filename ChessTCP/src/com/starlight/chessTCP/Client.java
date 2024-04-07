@@ -1,31 +1,30 @@
 package com.starlight.chessTCP;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
 public abstract class Client implements Runnable {
 
-    private Socket Boss;
+    private Socket boss;
     private BufferedReader in;
     private PrintWriter out;
-    private boolean done;
-    private String IP;
-    private int port;
-    public Client(String IP, int port) {
+    private final boolean done;
+    private final String ip;
+    private final int port;
+    public Client(String ip, int port) {
         done = false;
-        this.IP = IP;
+        this.ip = ip;
         this.port = port;
     }
 
     public void run() {
 
         try {
-            Boss = new Socket(IP, port);  //Attempts to connect to server with given IP and port from constructor
-            out = new PrintWriter(Boss.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(Boss.getInputStream()));
+            boss = new Socket(ip, port);  //Attempts to connect to server with given IP and port from constructor
+            out = new PrintWriter(boss.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(boss.getInputStream()));
 
             while (!done) {
                 receivePacketHeader();
@@ -43,7 +42,7 @@ public abstract class Client implements Runnable {
     public void receivePacketHeader() {
         try {
             String packetString = readNextString();
-            HandlePacket(PacketHeader.valueOf(packetString));
+            handlePacket(PacketHeader.valueOf(packetString));
         } catch (Exception ignored) {}
     }
 
@@ -63,13 +62,13 @@ public abstract class Client implements Runnable {
         try {
             out.close();
             in.close();
-            if (!Boss.isClosed()) {
-                Boss.close();
+            if (!boss.isClosed()) {
+                boss.close();
             }
         } catch (Exception ignored) {}
 
     }
 
 
-    protected abstract void HandlePacket(PacketHeader packetHeader);
+    protected abstract void handlePacket(PacketHeader packetHeader);
 }

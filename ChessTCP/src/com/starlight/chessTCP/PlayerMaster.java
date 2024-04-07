@@ -1,96 +1,73 @@
 package com.starlight.chessTCP;
 
-import javax.swing.*;
-import javax.swing.event.MouseInputListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class PlayerMaster {
+public class PlayerMaster implements GameHandler{
 
-    public BoardDisplay Board;
+    public BoardDisplay board;
     PlayerClient client;
-    private ExecutorService pool;
     boolean requestNewPossibles = true;
-    String BoardState;
-
     boolean started = false;
     public PlayerMaster() {
-        pool = Executors.newCachedThreadPool();
+        ExecutorService pool = Executors.newCachedThreadPool();
         client = new PlayerClient("127.0.0.1", 9999, this);
         pool.execute(client);
 
-        Board = new BoardDisplay(false, this);
+        board = new BoardDisplay(false, this);
         //Board.printMap();
 
     }
-
-    public void recieveBoardStatus(String ColourAndNotation) {
-        String Notation = ColourAndNotation.substring(5);
-        String Colour = ColourAndNotation.substring(0,5);
+    public void receiveBoardStatus(String colourAndNotation) {
+        String notation = colourAndNotation.substring(5);
+        String colour = colourAndNotation.substring(0,5);
         if (!started){
-            Board.printMap();
+            board.printMap();
             started = true;
         }
 
-        Board.turn = (Board.White == (Objects.equals(Colour, "WHITE")));
-        BoardState = Notation;
-        Board.LoadMapFromNotation(Notation);
-        Board.frame.repaint();
+        board.turn = (board.white == (Objects.equals(colour, "WHITE")));
+        board.loadMapFromNotation(notation);
+        board.frame.repaint();
 
     }
-
     public void receivePossibleMoves(List<String> possibleMoves) {
 
-        Board.LoadPossibleMoves(possibleMoves);
-        Board.frame.repaint();
+        board.loadPossibleMoves(possibleMoves);
+        board.frame.repaint();
         requestNewPossibles = true;
 
     }
-
-    public void requestPossibleMoves(String Location) {
-        if (!requestNewPossibles) {return;}
-        client.sendMessage(PacketHeader.SELECT_PIECE, Location);
-
-    }
-
-    public void receiveWelcomePack(String WelcomePack) {
-        switch (WelcomePack.substring(0, 5)) {
-            case "WHITE" -> {
-                Board.White = true;
-            }
-            case "BLACK" -> {
-                Board.White = false;
-
-            }
+    public void receiveWelcomePack(String welcomePack) {
+        switch (welcomePack.substring(0, 5)) {
+            case "WHITE" -> board.white = true;
+            case "BLACK" -> board.white = false;
             default -> {
-                Board.White = true;
-                Board.spectator = true;
+                board.white = true;
+                board.spectator = true;
             }
 
         }
     }
+    public void receivePromotionPrompt(){
+        board.promotion = !board.promotion;
+    }
+    public void requestPossibleMoves(String location) {
+        if (!requestNewPossibles) {return;}
+        client.sendMessage(PacketHeader.SELECT_PIECE, location);
 
-    public void requestMove(String PieceLocation, String MoveLocation){
-        if (Board.spectator) {requestNewPossibles = true; return;}
-        client.sendMessage(PacketHeader.MOVE, PieceLocation + MoveLocation);   //Sends selected piece and move in 1 string
+    }
+    public void requestMove(String pieceLocation, String moveLocation){
+        if (board.spectator) {requestNewPossibles = true; return;}
+        client.sendMessage(PacketHeader.MOVE, pieceLocation + moveLocation);   //Sends selected piece and move in 1 string
         requestNewPossibles = true;
     }
-
-    public void RecievePromotionPrompt(){
-        Board.promotion = !Board.promotion;
-    }
-    public void SendPromotion(char piece){
+    public void sendPromotion(char piece){
         client.sendMessage(PacketHeader.PROMOTION, String.valueOf(piece));   //Sends selected piece and move in 1 string
-
     }
-
-    public static void main(String[] args) {
-        PlayerMaster player = new PlayerMaster();
-    }
+    public static void main(String[] args){new PlayerMaster();}
 }
 
 

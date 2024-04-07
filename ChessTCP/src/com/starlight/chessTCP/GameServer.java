@@ -1,7 +1,5 @@
 package com.starlight.chessTCP;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class GameServer extends Server{
 
@@ -17,30 +15,26 @@ public class GameServer extends Server{
     }
 
     @Override
-    public void HandlePacket(ConnectionHandler Handler, PacketHeader packetHeader) {
-        GameMaster room = roomMap.get(Handler);
+    public void handlePacket(ConnectionHandler handler, PacketHeader packetHeader) {
+        GameMaster room = roomMap.get(handler);
         System.out.println(packetHeader);
         switch (packetHeader){
             case WELCOME:
                 System.out.println("Connected");
                 break;
             case MOVE:
-                HandleMove(Handler, room);
-                break;
-            case BOARD_STATE:
-                break;
-            case TURN_PROMPT:
+                HandleMove(handler, room);
                 break;
             case SELECT_PIECE:
-                HandleSelect_Piece(Handler, room);
+                HandleSelect_Piece(handler, room);
                 break;
             case POSSIBLE_MOVES:
                 break;
             case ROOM_INFO:
-                AssignClientRoom(Handler);
+                AssignClientRoom(handler);
                 break;
             case PROMOTION:
-                HandlePromotion(Handler, room);
+                HandlePromotion(handler, room);
                 break;
             default:
                 break;
@@ -185,7 +179,7 @@ public class GameServer extends Server{
     }
 
     @Override
-    protected void SendWelcomeMessage(ConnectionHandler Handler) {
+    protected void sendWelcomeMessage(ConnectionHandler Handler) {
         SendRoomInfo(Handler);
     }
 
@@ -233,7 +227,7 @@ class GameMaster {
             else {       //Otherwise, this slot should contain a piece
                 boolean white;
                 white = Character.isUpperCase(c);       //Capital is a white piece, lower case is black
-                board[x][y] = Piece.CreatePiece(c, x, y, white);        //Uses the factory method inside Piece to create a Piece of the correct class
+                board[x][y] = Piece.createPiece(c, x, y, white);        //Uses the factory method inside Piece to create a Piece of the correct class
                 x++;    //increments X (moving right)
             }
 
@@ -273,11 +267,11 @@ class GameMaster {
 
     public List<String> getPossibleMoves(int x, int y){
         Piece temp = board[x][y];
-        return temp.GetLegalMoves(board);
+        return temp.getLegalMoves(board);
     }
 
     public void PromotePawn(String Pieceinfo) {
         boolean white = Character.isUpperCase(Pieceinfo.charAt(0));       //Capital is a white piece, lower case is black
-        board[promotion.x][promotion.y] = Piece.CreatePiece(Pieceinfo.charAt(0), promotion.x, promotion.y,white);
+        board[promotion.x][promotion.y] = Piece.createPiece(Pieceinfo.charAt(0), promotion.x, promotion.y,white);
     }
 }
