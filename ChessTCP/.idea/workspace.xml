@@ -11,6 +11,9 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/PacketHeader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PacketHeader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/Piece.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/Piece.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -107,26 +110,21 @@
           <option name="timeStamp" value="51" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java</url>
-          <line>36</line>
-          <option name="timeStamp" value="77" />
+          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java</url>
+          <line>13</line>
+          <option name="timeStamp" value="97" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java</url>
-          <line>58</line>
-          <option name="timeStamp" value="79" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerClient.java</url>
-          <line>17</line>
-          <option name="timeStamp" value="91" />
+          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java</url>
+          <line>256</line>
+          <option name="timeStamp" value="98" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/ChessTCP$ClientRuntime_2.ic" NAME="ClientRuntime-2 Coverage Results" MODIFIED="1706540281843" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
-    <SUITE FILE_PATH="coverage/ChessTCP$ClientRuntime.ic" NAME="ClientRuntime Coverage Results" MODIFIED="1708786409562" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
-    <SUITE FILE_PATH="coverage/ChessTCP$ServerRuntime.ic" NAME="ServerRuntime Coverage Results" MODIFIED="1707919456491" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+    <SUITE FILE_PATH="coverage/ChessTCP$ClientRuntime.ic" NAME="ClientRuntime Coverage Results" MODIFIED="1712516521177" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+    <SUITE FILE_PATH="coverage/ChessTCP$ServerRuntime.ic" NAME="ServerRuntime Coverage Results" MODIFIED="1712516238718" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
 </project>

@@ -20,7 +20,6 @@ public class PlayerClient extends Client{
                     Master.receiveWelcomePack(readNextString());
                     break;
                 case MOVE:
-                    sendMessage(PacketHeader.TURN_PROMPT, "HI");
                     break;
                 case BOARD_STATE:
                     Master.recieveBoardStatus(readNextString());
@@ -37,6 +36,10 @@ public class PlayerClient extends Client{
                     break;
                 case MISC:
                     System.out.println(readNextString());
+                    break;
+                case PROMOTION:
+                    readNextString(); //Clear buffer
+                    Master.RecievePromotionPrompt();
                     break;
                 default:
                     break;

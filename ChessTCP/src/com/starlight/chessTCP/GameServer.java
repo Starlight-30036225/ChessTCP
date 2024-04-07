@@ -38,6 +38,10 @@ public class GameServer extends Server{
                 break;
             case ROOM_INFO:
                 AssignClientRoom(Handler);
+                break;
+            case PROMOTION:
+                HandlePromotion(Handler, room);
+                break;
             default:
                 break;
 
@@ -63,15 +67,27 @@ public class GameServer extends Server{
         int Movey = Character.getNumericValue(Composite.charAt(3));
 
         if (!room.board[Piecex][Piecey].move(room.board,Movex+ "" + Movey)) {return;}   //move failed, exit here
+
+
+        if (room.board[Movex][Movey].getClass() == Pawn.class) {
+            Pawn p = (Pawn)room.board[Movex][Movey];
+            if (((p.direction + p.y > 7) || (p.direction + p.y) < 0)) {
+                room.promotion = p;
+                Handler.sendMessage(PacketHeader.PROMOTION,"null");
+            }
+        }
+
         GameMaster finalRoom = room;
+        room.white = !room.white;
         for (ConnectionHandler CH:
                 clients.stream()
                         .filter(CH -> roomMap.get(CH) == finalRoom)
                         .toList()) {
-            CH.sendMessage(PacketHeader.BOARD_STATE, room.LoadNotationFromMap());    //Update all clients of the move
+
+            CH.sendMessage(PacketHeader.BOARD_STATE, (room.white? "WHITE" : "BLACK") + room.LoadNotationFromMap());    //Update all clients of the move
         }
 
-        room.white = !room.white;
+
 
 
     }
@@ -89,6 +105,18 @@ public class GameServer extends Server{
         }
         //sends all moves back to client
         Handler.sendMessage(PacketHeader.POSSIBLE_MOVES, CompositeMoveString);
+    }
+
+    private void HandlePromotion(ConnectionHandler Handler, GameMaster room) {
+        roomMap.get(Handler).PromotePawn(Handler.readNextString());
+        Handler.sendMessage(PacketHeader.PROMOTION, "NULL");
+        GameMaster finalRoom = room;
+        for (ConnectionHandler CH:
+                clients.stream()
+                        .filter(CH -> roomMap.get(CH) == finalRoom)
+                        .toList()) {
+            CH.sendMessage(PacketHeader.BOARD_STATE, (room.white ? "WHITE" : "BLACK") + room.LoadNotationFromMap());
+        }
     }
 
     protected void SendRoomInfo(ConnectionHandler Handler) {
@@ -145,10 +173,11 @@ public class GameServer extends Server{
                     clients.stream()
                             .filter(CH -> roomMap.get(CH) == finalRoom)
                             .toList()) {
-                CH.sendMessage(PacketHeader.BOARD_STATE, room.LoadNotationFromMap());
+                CH.sendMessage(PacketHeader.BOARD_STATE, "WHITE" + room.LoadNotationFromMap());
+
             }
         } else if (room.Connections >2) {
-            Handler.sendMessage(PacketHeader.BOARD_STATE, room.LoadNotationFromMap());
+            Handler.sendMessage(PacketHeader.BOARD_STATE, (room.white? "WHITE" : "BLACK") + room.LoadNotationFromMap());
         }
 
 
@@ -159,6 +188,7 @@ public class GameServer extends Server{
     protected void SendWelcomeMessage(ConnectionHandler Handler) {
         SendRoomInfo(Handler);
     }
+
 }
 
 class GameMaster {
@@ -171,10 +201,13 @@ class GameMaster {
     public Server.ConnectionHandler BlackPlayer;
 
     public Integer Connections;
+
+    public Pawn promotion;
     String password = "";
     public GameMaster(){
         Connections = 0;
-        LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+        //LoadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+        LoadMapFromNotation("k7/7P/8/8/8/8/p7/7K");
     }
 
     private void LoadMapFromNotation(String Notation) {
@@ -241,5 +274,10 @@ class GameMaster {
     public List<String> getPossibleMoves(int x, int y){
         Piece temp = board[x][y];
         return temp.GetLegalMoves(board);
+    }
+
+    public void PromotePawn(String Pieceinfo) {
+        boolean white = Character.isUpperCase(Pieceinfo.charAt(0));       //Capital is a white piece, lower case is black
+        board[promotion.x][promotion.y] = Piece.CreatePiece(Pieceinfo.charAt(0), promotion.x, promotion.y,white);
     }
 }

@@ -5,6 +5,7 @@ import javax.swing.event.MouseInputListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -17,8 +18,6 @@ public class PlayerMaster {
     String BoardState;
 
     boolean started = false;
-
-
     public PlayerMaster() {
         pool = Executors.newCachedThreadPool();
         client = new PlayerClient("127.0.0.1", 9999, this);
@@ -29,12 +28,15 @@ public class PlayerMaster {
 
     }
 
-    public void recieveBoardStatus(String Notation) {
+    public void recieveBoardStatus(String ColourAndNotation) {
+        String Notation = ColourAndNotation.substring(5);
+        String Colour = ColourAndNotation.substring(0,5);
         if (!started){
             Board.printMap();
             started = true;
         }
-        Board.turn = !Board.turn;
+
+        Board.turn = (Board.White == (Objects.equals(Colour, "WHITE")));
         BoardState = Notation;
         Board.LoadMapFromNotation(Notation);
         Board.frame.repaint();
@@ -59,16 +61,13 @@ public class PlayerMaster {
         switch (WelcomePack.substring(0, 5)) {
             case "WHITE" -> {
                 Board.White = true;
-                Board.turn = false;
-                Board.spectator = false;
             }
             case "BLACK" -> {
                 Board.White = false;
-                Board.turn = true;
-                Board.spectator = false;
 
             }
             default -> {
+                Board.White = true;
                 Board.spectator = true;
             }
 
@@ -76,8 +75,17 @@ public class PlayerMaster {
     }
 
     public void requestMove(String PieceLocation, String MoveLocation){
+        if (Board.spectator) {requestNewPossibles = true; return;}
         client.sendMessage(PacketHeader.MOVE, PieceLocation + MoveLocation);   //Sends selected piece and move in 1 string
         requestNewPossibles = true;
+    }
+
+    public void RecievePromotionPrompt(){
+        Board.promotion = !Board.promotion;
+    }
+    public void SendPromotion(char piece){
+        client.sendMessage(PacketHeader.PROMOTION, String.valueOf(piece));   //Sends selected piece and move in 1 string
+
     }
 
     public static void main(String[] args) {

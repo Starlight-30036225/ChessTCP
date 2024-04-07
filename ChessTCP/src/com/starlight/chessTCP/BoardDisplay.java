@@ -26,21 +26,21 @@ public class BoardDisplay {
     public  List<String> possibleMoves;
 
     PlayerMaster master;
-
     SimplePiece SelectedPiece;
-
     int MouseX, MouseY;
+
+    boolean promotion;
 
     public final int MARGIN = 32;
     public final int BOARD_WIDTH = 528;
     public final int BOARD_HEIGHT = 600;
-
     public final int SQUARE_SIZE = 64;
     public BoardDisplay(boolean white, PlayerMaster master) {
         this.White = white;
         possibleMoves = new ArrayList<>();
         Board = new SimplePiece[8][8];
         this.master = master;
+        promotion = false;
     }
 
     public void printMap() {
@@ -131,18 +131,33 @@ public class BoardDisplay {
 
 
                 g.setColor(Color.BLACK);
-                g.setFont(new Font("serif", ROMAN_BASELINE, turn? 20: 15));
-                g.drawString(spectator? "You are spectating" :
+                g.setFont(new Font("serif", ROMAN_BASELINE, spectator? 20 : turn? 20: 15));
+                g.drawString(spectator? turn? "White's turn" : "Blacks's turn" :
                         turn? "Your turn" : "Opponent's turn", MARGIN, BOARD_HEIGHT - MARGIN);
-
+                if (promotion) {DrawPromotionPanel(g); return;}
                 if (SelectedPiece == null) {return;}
                 g.drawImage(imgList[SelectedPiece.getImageval()], MouseX, MouseY, this);
+
             }
             private void DrawPiece(Graphics g, int x, int y) {
                 SimplePiece p = Board[x][y];
                 if (p == null || p == SelectedPiece) {return;}  //No piece at this location, skip
                 int imageVal = p.getImageval();     //get image from piece
                 g.drawImage(imgList[imageVal], p.getX() * SQUARE_SIZE + MARGIN, p.getY() * SQUARE_SIZE+MARGIN, this);
+
+            }
+
+            private void DrawPromotionPanel(Graphics g) {
+
+                g.setColor(Color.CYAN);
+                g.fillRect(0,0,64,256);
+                g.setColor(Color.BLUE);
+                g.drawRect(0,0,64,256);
+
+                int color = White? 1 : 7;
+                for (int i = 0; i < 4; i++) {
+                    g.drawImage(imgList[(color + i)], 0, i * 64, this);
+                }
 
             }
         };
@@ -185,7 +200,8 @@ public class BoardDisplay {
         //gatekeeping
         if((possibleMoves == null || !possibleMoves.contains(X + "" + Y))){ return;} //This location is irrelvant, skip
 
-        Color HighlightColor = (this.White == SelectedPiece.white && turn)? new Color(0, 200, 0, 200) : new Color(200, 0, 0, 200) ;
+        Color HighlightColor = ((this.White == SelectedPiece.white) && turn)?
+                new Color(0, 200, 0, 200) : new Color(200, 0, 0, 200) ;
 
         g.setColor(HighlightColor);
 
@@ -230,12 +246,30 @@ public class BoardDisplay {
 
             @Override
             public void mouseClicked(MouseEvent e) {
+                if (!promotion) {return;}
+                int MouseX = e.getX();
+                int MouseY = e.getY();
 
+                if (MouseX > 64 || MouseY < 0 || MouseY > 256 || MouseX < 0) {return;}  //If mouse it out of range, ignore
+
+                char PieceType; //Holds the type to be returned to the board
+                MouseY -= 32; //Accounts for border
+                switch (MouseY / 64) {
+                    case 0 -> PieceType = 'q';
+                    case 1 -> PieceType = 'b';
+                    case 2 -> PieceType = 'n';
+                    case 3 -> PieceType = 'r';
+                    default -> PieceType = 'q';
+                }
+                PieceType = White? Character.toUpperCase(PieceType) : PieceType;
+                master.SendPromotion(PieceType);
+                frame.repaint();
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
                 //Used for dragging
+                if (promotion) {return;}
                 //gets current mouse pos (and sends to server)
                 int Mx = MouseX = (e.getX() -MARGIN); ;
                 int My = MouseY = (e.getY()- (MARGIN + 32));
@@ -264,7 +298,7 @@ public class BoardDisplay {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-
+                if (promotion) {return;}
                 if (SelectedPiece == null) {return;}      //gatekeeping
 
 
@@ -303,6 +337,7 @@ public class BoardDisplay {
         frame.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {        //keeps the selected piece in range
+                if (promotion) {return;}
                 if ( SelectedPiece == null) {return;}
                 MouseX = e.getX();
                 MouseY = e.getY();
@@ -327,6 +362,7 @@ public class BoardDisplay {
             }
         });
     }
+
 }
 
 class SimplePiece{

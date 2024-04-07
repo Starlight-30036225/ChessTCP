@@ -296,7 +296,7 @@ class Pawn extends Piece {
 
     private boolean FirstMove = true;
     public boolean Vulnerable = false;      //If could be captured via en passant
-    private int direction;
+    public int direction;
 
     Pawn(char type, int x, int y, boolean white) {
         super(type, x, y, white);
