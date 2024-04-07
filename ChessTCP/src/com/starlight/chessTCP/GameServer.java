@@ -1,5 +1,6 @@
 package com.starlight.chessTCP;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GameServer extends Server{
@@ -8,9 +9,6 @@ public class GameServer extends Server{
 
     Map<ConnectionHandler, GameMaster> roomMap;
 
-
-
-    boolean testmode = false;
 
     public GameServer(int port) {
         super(port);
@@ -50,7 +48,7 @@ public class GameServer extends Server{
 
         String Composite = Handler.readNextString();
 
-        if (!testmode && Handler !=
+        if (Handler !=
                 (room.white? room.WhitePlayer :room.BlackPlayer)) {return;}
 
         //gets the start location of the move/piece location
@@ -58,20 +56,21 @@ public class GameServer extends Server{
         int Piecey = Character.getNumericValue(Composite.charAt(1));
 
         if (room.board[Piecex][Piecey] == null ||
-                (!testmode && room.board[Piecex][Piecey].white != room.white)) {return;} //Piece is invalid or wrong colour
+                (room.board[Piecex][Piecey].white != room.white)) {return;} //Piece is invalid or wrong colour
 
         //gets the end location of the move
         int Movex = Character.getNumericValue(Composite.charAt(2));
         int Movey = Character.getNumericValue(Composite.charAt(3));
 
         if (!room.board[Piecex][Piecey].move(room.board,Movex+ "" + Movey)) {return;}   //move failed, exit here
-        for (ConnectionHandler H:
-                clients) {
-            if (roomMap.get(H) != room){continue;}  //GateKeeping --- Needs improvement
-            H.sendMessage(PacketHeader.BOARD_STATE, room.LoadNotationFromMap());    //Update all clients of the move
+        GameMaster finalRoom = room;
+        for (ConnectionHandler CH:
+                clients.stream()
+                        .filter(CH -> roomMap.get(CH) == finalRoom)
+                        .toList()) {
+            CH.sendMessage(PacketHeader.BOARD_STATE, room.LoadNotationFromMap());    //Update all clients of the move
         }
 
-        if (testmode) {return;}
         room.white = !room.white;
 
 
@@ -125,28 +124,35 @@ public class GameServer extends Server{
         }
 
 
-        if (!testmode) {
             if (room.WhitePlayer == null) {
                 room.WhitePlayer = Handler;
-                roomMap.put(Handler, room);
                 Handler.sendMessage(PacketHeader.WELCOME, "WHITE");
             } else if (room.BlackPlayer == null) {
                 room.BlackPlayer = Handler;
-                roomMap.put(Handler, room);
                 Handler.sendMessage(PacketHeader.WELCOME, "BLACK");
+            } else {
+                Handler.sendMessage(PacketHeader.WELCOME, "SPECT");
             }
-        }
+            roomMap.put(Handler, room);
+
+
+
         room.Connections++;
 
-        if(room.Connections > 1) {
+        if(room.Connections == 2) {
+            GameMaster finalRoom = room;
             for (ConnectionHandler CH:
-                    clients) {
-                if (roomMap.get(CH) != room) {
-                    continue;
-                }  //GateKeeping --- Needs improvement
+                    clients.stream()
+                            .filter(CH -> roomMap.get(CH) == finalRoom)
+                            .toList()) {
                 CH.sendMessage(PacketHeader.BOARD_STATE, room.LoadNotationFromMap());
             }
+        } else if (room.Connections >2) {
+            Handler.sendMessage(PacketHeader.BOARD_STATE, room.LoadNotationFromMap());
         }
+
+
+
     }
 
     @Override

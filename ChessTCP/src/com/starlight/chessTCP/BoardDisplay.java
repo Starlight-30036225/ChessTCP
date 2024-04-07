@@ -17,6 +17,8 @@ import static java.awt.Font.*;
 public class BoardDisplay {
 
     public boolean White;
+
+    public boolean spectator;
     public boolean turn;
     public  JFrame frame;
     public SimplePiece[][] Board;
@@ -130,7 +132,8 @@ public class BoardDisplay {
 
                 g.setColor(Color.BLACK);
                 g.setFont(new Font("serif", ROMAN_BASELINE, turn? 20: 15));
-                g.drawString(turn? "Your turn" : "Opponent's turn", MARGIN, BOARD_HEIGHT - MARGIN);
+                g.drawString(spectator? "You are spectating" :
+                        turn? "Your turn" : "Opponent's turn", MARGIN, BOARD_HEIGHT - MARGIN);
 
                 if (SelectedPiece == null) {return;}
                 g.drawImage(imgList[SelectedPiece.getImageval()], MouseX, MouseY, this);

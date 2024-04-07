@@ -60,12 +60,16 @@ public class PlayerMaster {
             case "WHITE" -> {
                 Board.White = true;
                 Board.turn = false;
+                Board.spectator = false;
             }
             case "BLACK" -> {
                 Board.White = false;
                 Board.turn = true;
+                Board.spectator = false;
+
             }
             default -> {
+                Board.spectator = true;
             }
 
         }
