@@ -22,7 +22,7 @@ public class PlayerClient extends Client{
 
             case POSSIBLE_MOVES -> separateMoveList();
 
-            case ROOM_INFO -> selectRoom();
+            case ROOM_INFO -> master.selectRoom(readNextString());
 
             case MISC -> System.out.println(readNextString());
 

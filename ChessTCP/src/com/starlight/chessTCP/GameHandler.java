@@ -15,5 +15,7 @@ public interface GameHandler {
     void closeGame(String keepOpen);
 
     void handleWin(String losingPlayer);
+
+    void selectRoom(String roomList);
 }
 

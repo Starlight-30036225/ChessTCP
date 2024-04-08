@@ -8,13 +8,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="174d0ed8-668b-411d-8b4e-0259eb6b5687" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/UIHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/MainMenu.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/Client.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/PacketHeader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PacketHeader.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java" afterDir="false" />
     </list>
@@ -27,8 +23,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Enum" />
-        <option value="Class" />
         <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -116,6 +112,11 @@
           <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java</url>
           <line>64</line>
           <option name="timeStamp" value="115" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/MainMenu.java</url>
+          <line>26</line>
+          <option name="timeStamp" value="122" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

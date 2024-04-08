@@ -82,6 +82,11 @@ public class PlayerMaster implements GameHandler, UIHandler{
         board.endGame(dialogue);
     }
 
+    @Override
+    public void selectRoom(String roomList) {
+        new MainMenu(this, roomList);
+    }
+
     //UIHandler Interface
     public void requestPossibleMoves(String location) {
         if (!requestNewPossibles) {return;}
@@ -93,17 +98,21 @@ public class PlayerMaster implements GameHandler, UIHandler{
         client.sendMessage(PacketHeader.MOVE, pieceLocation + moveLocation);   //Sends selected piece and move in 1 string
         requestNewPossibles = true;
     }
-
     @Override
     public void closeGame(boolean naturalEnd) {
         client.sendMessage(PacketHeader.DISCONNECT, "NULL");
         client = null;
     }
-
     public void sendPromotion(char piece){
         client.sendMessage(PacketHeader.PROMOTION, String.valueOf(piece));   //Sends selected piece and move in 1 string
     }
 
+
+
+    public void sendRoom(int selection, String password) {
+        client.sendMessage(PacketHeader.ROOM_INFO, selection - 1 + password);
+
+    }
 
     public static void main(String[] args){new PlayerMaster();}
 }
