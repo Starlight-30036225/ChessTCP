@@ -4,14 +4,15 @@ public enum PacketHeader {
 
     WELCOME,
     BOARD_STATE,
-    TURN_PROMPT,
     SELECT_PIECE,
     POSSIBLE_MOVES,
     MOVE,
     ROOM_INFO,
     MISC,
     PROMOTION,
+    DISCONNECT,
 
+    WIN
 
 }
 

@@ -5,12 +5,13 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class PlayerMaster implements GameHandler{
+public class PlayerMaster implements GameHandler, UIHandler{
 
     public BoardDisplay board;
     PlayerClient client;
     boolean requestNewPossibles = true;
     boolean started = false;
+
     public PlayerMaster() {
         ExecutorService pool = Executors.newCachedThreadPool();
         client = new PlayerClient("127.0.0.1", 9999, this);
@@ -20,6 +21,7 @@ public class PlayerMaster implements GameHandler{
         //Board.printMap();
 
     }
+    //GameHander Interface
     public void receiveBoardStatus(String colourAndNotation) {
         String notation = colourAndNotation.substring(5);
         String colour = colourAndNotation.substring(0,5);
@@ -52,8 +54,35 @@ public class PlayerMaster implements GameHandler{
         }
     }
     public void receivePromotionPrompt(){
+
         board.promotion = !board.promotion;
+        board.frame.repaint();
+
     }
+
+    @Override
+    public void closeGame(String keepOpen) {
+        if (keepOpen.equals("END")){
+            board.frame.dispose();
+        }
+        else {
+            board.notifyDisconnect();
+        }
+    }
+
+    @Override
+    public void handleWin(String winner) {
+        String dialogue = "";
+        if (board.spectator) {
+            dialogue = winner + " won the game!";
+        }
+        else{
+            dialogue = board.white == winner.equals("WHITE")? "You won!" : "You lose...";
+        }
+        board.endGame(dialogue);
+    }
+
+    //UIHandler Interface
     public void requestPossibleMoves(String location) {
         if (!requestNewPossibles) {return;}
         client.sendMessage(PacketHeader.SELECT_PIECE, location);
@@ -64,9 +93,18 @@ public class PlayerMaster implements GameHandler{
         client.sendMessage(PacketHeader.MOVE, pieceLocation + moveLocation);   //Sends selected piece and move in 1 string
         requestNewPossibles = true;
     }
+
+    @Override
+    public void closeGame(boolean naturalEnd) {
+        client.sendMessage(PacketHeader.DISCONNECT, "NULL");
+        client = null;
+    }
+
     public void sendPromotion(char piece){
         client.sendMessage(PacketHeader.PROMOTION, String.valueOf(piece));   //Sends selected piece and move in 1 string
     }
+
+
     public static void main(String[] args){new PlayerMaster();}
 }
 

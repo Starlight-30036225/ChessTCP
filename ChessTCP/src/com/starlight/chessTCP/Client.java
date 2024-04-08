@@ -10,7 +10,7 @@ public abstract class Client implements Runnable {
     private Socket boss;
     private BufferedReader in;
     private PrintWriter out;
-    private final boolean done;
+    private boolean done;
     private final String ip;
     private final int port;
     public Client(String ip, int port) {
@@ -18,6 +18,7 @@ public abstract class Client implements Runnable {
         this.ip = ip;
         this.port = port;
     }
+
 
     public void run() {
 
@@ -29,6 +30,7 @@ public abstract class Client implements Runnable {
             while (!done) {
                 receivePacketHeader();
             }
+            shutdown();
         } catch (Exception e) {
             shutdown();
         }
@@ -56,9 +58,9 @@ public abstract class Client implements Runnable {
 
     }
 
-
     public void shutdown() {    //Something has gone wrong, kill self
         System.out.println("Shutting down");
+        done = true;
         try {
             out.close();
             in.close();

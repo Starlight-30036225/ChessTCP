@@ -30,7 +30,14 @@ public class PlayerClient extends Client{
                 readNextString(); //Clear buffer
                 master.receivePromotionPrompt();
             }
+            case DISCONNECT -> {
+                master.closeGame(readNextString());
+                //shutdown();
+            }
+            case WIN -> {
+                master.handleWin(readNextString());
 
+            }
             default -> {
             }
         }

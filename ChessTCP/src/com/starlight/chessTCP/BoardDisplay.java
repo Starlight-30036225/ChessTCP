@@ -15,26 +15,26 @@ import java.util.List;
 import static java.awt.Font.*;
 
 public class BoardDisplay {
-
     public boolean white;
-
     public boolean spectator;
     public boolean turn;
     public  JFrame frame;
-    public SimplePiece[][] board;
+    SimplePiece[][] board;
     Image[] imgList;
-    public  List<String> possibleMoves;
-
-    PlayerMaster master;
+    final List<String> possibleMoves;
+    final UIHandler master;
     SimplePiece selectedPiece;
     int mouseX, mouseY;
-
     boolean promotion;
-    public final int MARGIN = 32;
-    public final int BOARD_WIDTH = 528;
-    public final int BOARD_HEIGHT = 600;
-    public final int SQUARE_SIZE = 64;
-    public BoardDisplay(boolean white, PlayerMaster master) {
+
+    //constants
+    final int MARGIN = 32;
+    final int BOARD_WIDTH = 528;
+    final int BOARD_HEIGHT = 600;
+    final int SQUARE_SIZE = 64;
+
+
+    public BoardDisplay(boolean white, UIHandler master) {
         this.white = white;
         possibleMoves = new ArrayList<>();
         board = new SimplePiece[8][8];
@@ -52,7 +52,7 @@ public class BoardDisplay {
 
         //SetUpMouseListeners(frame);
         frame.setVisible(true);
-        SetUpMouseListeners(frame);
+        setUpMouseListeners(frame);
     }
 
     private void extractImages() {
@@ -159,6 +159,8 @@ public class BoardDisplay {
                 }
 
             }
+
+
         };
         frame.add(pn);
     }
@@ -197,10 +199,11 @@ public class BoardDisplay {
 
     private void highlight(Graphics g, int x, int y) {
         //gate-keeping
-        if((possibleMoves == null) || !possibleMoves.contains(x + String.valueOf(y))){ return;} //This location is irrelvant, skip
+        if(!possibleMoves.contains(x + String.valueOf(y))){ return;} //This location is irrelvant, skip
 
-        Color highlightColor = ((this.white == selectedPiece.white) && turn)?
-                new Color(0, 200, 0, 200) : new Color(200, 0, 0, 200) ;
+        Color highlightColor = spectator? new Color(200, 60, 0, 200) :     //Orange for spectator
+                ((this.white == selectedPiece.white) && turn)?
+                new Color(0, 200, 0, 200) : new Color(200, 0, 0, 200) ; //Green for current player, red for not current
 
         g.setColor(highlightColor);
 
@@ -230,7 +233,7 @@ public class BoardDisplay {
         }
     }
 
-    public void SetUpMouseListeners(JFrame frame) {
+    public void setUpMouseListeners(JFrame frame) {
 
         frame.addMouseListener(new MouseInputListener() {
             @Override
@@ -359,8 +362,38 @@ public class BoardDisplay {
 
             }
         });
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                if (JOptionPane.showConfirmDialog(frame,
+                        "Leaving the game now may result in a loss.", "Quit?",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+                    master.closeGame(false);
+                    System.exit(0);
+                }
+            }
+        });
     }
 
+    public void notifyDisconnect() {
+        if (JOptionPane.showConfirmDialog(frame,
+                (spectator? "A player has disconnected" : "Your opponent has disconnected.") +
+                        " They may return. \n Quit anyway?", "Quit?",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+            master.closeGame(false);
+            System.exit(0);
+        }
+    }
+
+    public void endGame(String dialogue) {
+       JOptionPane.showConfirmDialog(frame,
+                dialogue,"Quit?",
+               JOptionPane.DEFAULT_OPTION);
+            master.closeGame(false);
+            System.exit(0);
+    }
 }
 
 class SimplePiece{
