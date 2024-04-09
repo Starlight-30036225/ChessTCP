@@ -45,7 +45,9 @@ public abstract class Client implements Runnable {
         try {
             String packetString = readNextString();
             handlePacket(PacketHeader.valueOf(packetString));
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
     public String readNextString(){
