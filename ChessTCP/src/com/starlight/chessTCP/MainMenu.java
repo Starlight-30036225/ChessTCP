@@ -6,8 +6,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 public class MainMenu {
 
@@ -15,6 +14,9 @@ public class MainMenu {
     String roomList;
 
     JFrame frame;
+    JTabbedPane tabbedPane;
+    public int colourSelection = 0;
+    public int spriteSelection = 0;
 
     public MainMenu(PlayerMaster master, String roomList) {
         this.roomList = roomList;
@@ -35,14 +37,31 @@ public class MainMenu {
         frame.setName("CHESS");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setBackground(Color.LIGHT_GRAY);
-        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Rooms", createRoomTab());
         tabbedPane.addTab("Settings", new SettingsTab());
         frame.add(tabbedPane);
         return frame;
     }
+    public void waiting() {
 
-        public JScrollPane createRoomTab() {
+        frame.remove(tabbedPane);
+        frame.setBounds(200, 100, 300, 400);
+        frame.revalidate();
+        frame.repaint();
+        JPanel waitingPanel = new JPanel();
+        waitingPanel.setBackground(Color.gray);
+        JLabel colourLabel = new JLabel("Waiting for opponent");
+        colourLabel.setHorizontalAlignment(JLabel.CENTER);
+        colourLabel.setBounds(0,0,150,64);
+        waitingPanel.add(colourLabel);
+
+
+        frame.revalidate();
+        frame.add(waitingPanel);
+        //frame.repaint();
+    }
+    public JScrollPane createRoomTab() {
             JPanel panel = new JPanel();
             panel.setBackground(Color.gray);
             panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Setting BoxLayout to vertically align components
@@ -72,8 +91,6 @@ public class MainMenu {
         }
 
 
-
-
     private JButton createButton(String text, int returnval, boolean locked, String dialogueText) {
         JButton returnButton = new JButton(text);
         returnButton.setBorder(BorderFactory.createSoftBevelBorder(0));
@@ -91,113 +108,161 @@ public class MainMenu {
                     password = JOptionPane.showInputDialog(dialogueText);
                 }
                 master.sendRoom(returnval, password);
-                frame.dispose();
+                waiting();
             }
         });
         return returnButton;
     }
 
+
     public class SettingsTab extends JPanel {
 
-        private final JPanel square1;
-        private final JPanel square2;
+        private final JPanel gridSquareOne;
+        private final JPanel gridSquareTwo;
+        private final JLabel spriteOne;
+        private final JLabel spriteTwo;
 
-        private final JLabel picLabel;
-        private final JLabel picLabel2;
 
         public SettingsTab() {
+            this.setBackground(Color.gray);
+            readFile();
             setLayout(null); // Set layout manager to null for absolute positioning
             String[] colourFormats = {"Monochrome", "Pink", "Evil", "Ugly", "New"};
-            String[] spriteFormats = {"one", "two"};
-            JLabel label = new JLabel("Select Grid Colours");
-            label.setHorizontalAlignment(JLabel.CENTER);
-            label.setBounds(40,10,180,40);
+            String[] spriteFormats = {"Default", "Norights", "ComedyIsDead"};
 
-            JComboBox<String> selectionBox = new JComboBox<>(colourFormats);
-            selectionBox.setBounds(40,40,200,25);
-            selectionBox.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    updateSquareColors(selectionBox.getSelectedIndex());
+
+            JLabel colourLabel = new JLabel("Select Grid Colours");
+            colourLabel.setHorizontalAlignment(JLabel.CENTER);
+            colourLabel.setBounds(40,10,180,40);
+
+            JComboBox<String> colourSelectionBox = new JComboBox<>(colourFormats);
+            colourSelectionBox.setSelectedIndex(colourSelection);
+            colourSelectionBox.setBounds(40,40,200,25);
+            colourSelectionBox.addActionListener(e -> updateSquareColors(colourSelectionBox.getSelectedIndex()));
+
+            JLabel spriteLabel = new JLabel("Select Sprite Sheet");
+            spriteLabel.setBounds(40,90,200,40);
+            spriteLabel.setHorizontalAlignment(JLabel.CENTER);
+
+            JComboBox<String> spriteSelectionBox = new JComboBox<>(spriteFormats);
+            spriteSelectionBox.setBounds(40,120,200,25);
+            spriteSelectionBox.setSelectedIndex(spriteSelection);
+            spriteSelectionBox.addActionListener(e -> updateSpriteSheet(spriteSelectionBox.getSelectedIndex()));
+
+
+            gridSquareOne = new JPanel();
+            gridSquareOne.setPreferredSize(new Dimension(50, 50));
+            gridSquareOne.setBounds(40,220,80,80);
+
+
+            gridSquareTwo = new JPanel();
+            gridSquareTwo.setPreferredSize(new Dimension(50, 50));
+            gridSquareTwo.setBounds(160,220,80,80);
+            updateSquareColors(colourSelection); // Initially set colors based on the first selection
+
+            spriteOne = new JLabel();
+            spriteOne.setBounds(40,220,80,80);
+
+            spriteTwo = new JLabel();
+            spriteTwo.setBounds(160,220,80,80);
+            updateSpriteSheet(spriteSelection);
+
+
+
+
+
+
+            this.add(colourLabel);
+            this.add(colourSelectionBox);
+            this.add(spriteSelectionBox);
+            this.add(spriteOne);
+            this.add(spriteTwo);
+            this.add(gridSquareOne);
+            this.add(gridSquareTwo);
+            this.add(spriteLabel);
+
+
+        }
+
+        private void readFile() {
+            File file = new File("preferences.txt");
+            try{
+                if (!file.exists()) {
+                    // If the file doesn't exist, create it
+                    if (file.createNewFile()) {throw new RuntimeException("Couldnt create file");}
+                    // Write to the file
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                    String s = colourSelection + "\n" + spriteSelection;
+                    writer.write(s);
+
+                    writer.close();
+                } else {
+                    BufferedReader br = new BufferedReader(new FileReader(file));
+                    colourSelection = Integer.parseInt(br.readLine());
+                    spriteSelection = Integer.parseInt(br.readLine());
+                    br.close();
                 }
-            });
-
-            JLabel label2 = new JLabel("Select Sprite Sheet");
-            label2.setBounds(40,90,200,40);
-            label2.setHorizontalAlignment(JLabel.CENTER);
-
-            JComboBox<String> selectionBox2 = new JComboBox<>(spriteFormats);
-            selectionBox2.setBounds(40,120,200,25);
-            selectionBox2.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    updateSpriteSheet(selectionBox2.getSelectedIndex());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        private void updateFile() {
+            File file = new File("preferences.txt");
+            try{
+                if (!file.exists()) {
+                    if (file.createNewFile()) {throw new RuntimeException("Couldnt create file");}
+                    // Write to the file
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                    String s = colourSelection + "\n" + spriteSelection;
+                    writer.write(s);
+                    writer.close();
                 }
-            });
+                FileWriter writer = new FileWriter(file);
+                BufferedWriter bufferedWriter = new BufferedWriter(writer);
+                String s = colourSelection + "\n" + spriteSelection;
+                bufferedWriter.write(s);
+                bufferedWriter.close();
 
-            square1 = new JPanel();
-            square2 = new JPanel();
-
-            square1.setPreferredSize(new Dimension(50, 50));
-            square1.setBounds(40,220,80,80);
-            square2.setPreferredSize(new Dimension(50, 50));
-            square2.setBounds(160,220,80,80);
-            updateSquareColors(0); // Initially set colors based on the first selection
-
-
-
-
-
-            picLabel = new JLabel();
-            picLabel2 = new JLabel();
-            updateSpriteSheet(0);
-
-            picLabel.setBounds(40,220,80,80);
-            picLabel2.setBounds(160,220,80,80);
-
-
-            this.add(label);
-            this.add(selectionBox);
-            this.add(selectionBox2);
-            this.add(picLabel);
-            this.add(picLabel2);
-            this.add(square1);
-            this.add(square2);
-            this.add(label2);
-
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
         }
 
         private void updateSquareColors(int selectedIndex) {
+            colourSelection = selectedIndex;
             switch (selectedIndex) {
-                case 0: // Monochrome
-                    square1.setBackground(Color.BLACK);
-                    square2.setBackground(Color.WHITE);
-                    break;
-                case 1: // Pink
-                    square1.setBackground(Color.PINK);
-                    square2.setBackground(Color.WHITE);
-                    break;
-                case 2: // Evil
-                    square1.setBackground(Color.RED);
-                    square2.setBackground(Color.BLACK);
-                    break;
-                case 3: // Ugly
-                    square1.setBackground(Color.GREEN);
-                    square2.setBackground(Color.YELLOW);
-                    break;
-                case 4: // New
-                    square1.setBackground(Color.BLUE);
-                    square2.setBackground(Color.ORANGE);
-                    break;
-                default:
-                    break;
+                case 0 -> { // Monochrome
+                    gridSquareOne.setBackground(Color.BLACK);
+                    gridSquareTwo.setBackground(Color.WHITE);
+                }
+                case 1 -> { // Pink
+                    gridSquareOne.setBackground(Color.PINK);
+                    gridSquareTwo.setBackground(Color.MAGENTA);
+                }
+                case 2 -> { // Evil
+                    gridSquareOne.setBackground(Color.BLACK);
+                    gridSquareTwo.setBackground(Color.RED);
+                }
+                case 3 -> { // Ugly
+                    gridSquareOne.setBackground(Color.GREEN);
+                    gridSquareTwo.setBackground(Color.YELLOW);
+                }
+                case 4 -> { // New
+                    gridSquareOne.setBackground(Color.BLUE);
+                    gridSquareTwo.setBackground(Color.ORANGE);
+                }
+                default -> {
+                }
             }
+            updateFile();
         }
 
         private void updateSpriteSheet(int selectedIndex) {
+            spriteSelection = selectedIndex;
             String fileString = switch (selectedIndex) {
                 case 1 -> "chess.png";
+                case 2-> "chess3.png";
                 default -> "chess2.png";
             };
 
@@ -219,8 +284,9 @@ public class MainMenu {
             ImageIcon sprite2 =  new ImageIcon(baseImage.getSubimage(0,
                     height/2, width/6, height/2).getScaledInstance(80, 80, BufferedImage.SCALE_SMOOTH));
 
-            picLabel.setIcon(sprite1);
-            picLabel2.setIcon(sprite2);
+            spriteOne.setIcon(sprite1);
+            spriteTwo.setIcon(sprite2);
+            updateFile();
         }
     }
 }

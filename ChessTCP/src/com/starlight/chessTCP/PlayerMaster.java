@@ -12,6 +12,8 @@ public class PlayerMaster implements GameHandler, UIHandler{
     boolean requestNewPossibles = true;
     boolean started = false;
 
+    MainMenu menu;
+
     public PlayerMaster() {
         ExecutorService pool = Executors.newCachedThreadPool();
         client = new PlayerClient("127.0.0.1", 9999, this);
@@ -26,6 +28,9 @@ public class PlayerMaster implements GameHandler, UIHandler{
         String notation = colourAndNotation.substring(5);
         String colour = colourAndNotation.substring(0,5);
         if (!started){
+            board.recievePlayerPreferences(menu.colourSelection, menu.spriteSelection);
+            menu.frame.dispose();
+            menu = null;
             board.printMap();
             started = true;
         }
@@ -84,7 +89,7 @@ public class PlayerMaster implements GameHandler, UIHandler{
 
     @Override
     public void selectRoom(String roomList) {
-        new MainMenu(this, roomList);
+        menu = new MainMenu(this, roomList);
     }
 
     //UIHandler Interface

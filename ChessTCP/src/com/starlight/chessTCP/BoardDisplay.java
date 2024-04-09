@@ -33,6 +33,11 @@ public class BoardDisplay {
     final int BOARD_HEIGHT = 600;
     final int SQUARE_SIZE = 64;
 
+    Color boardColour1;
+    Color boardColour2;
+
+    String spriteFile;
+
 
     public BoardDisplay(boolean white, UIHandler master) {
         this.white = white;
@@ -40,6 +45,38 @@ public class BoardDisplay {
         board = new SimplePiece[8][8];
         this.master = master;
         promotion = false;
+
+    }
+
+    public void recievePlayerPreferences(int colourSelection, int spriteSelection) {
+        spriteFile = switch (spriteSelection) {
+            case 1 -> "chess.png";
+            case 2-> "chess3.png";
+            default -> "chess2.png";
+        };
+
+        switch (colourSelection) {
+            case 1 -> { // Pink
+                boardColour1 = Color.PINK;
+                boardColour2 = Color.magenta;
+            }
+            case 2 -> { // Evil
+                boardColour1 = Color.BLACK;
+                boardColour2 = Color.RED;
+            }
+            case 3 -> { // Ugly
+                boardColour1 = Color.GREEN;
+                boardColour2 = Color.YELLOW;
+            }
+            case 4 -> { // New
+                boardColour1 = Color.BLUE;
+                boardColour2 = Color.ORANGE;
+            }
+            default -> {
+                boardColour1 = Color.BLACK;
+                boardColour2 = Color.WHITE;
+            }
+        }
     }
 
     public void printMap() {
@@ -59,7 +96,7 @@ public class BoardDisplay {
         BufferedImage baseImage;
         //gets sprite sheet
         try {
-            baseImage = ImageIO.read(new File("src/Resources/chess2.png"));
+            baseImage = ImageIO.read(new File("src/Resources/" + spriteFile));
         } catch (IOException e) {
             System.out.println("Couldn't find image");
             throw new RuntimeException(e);
@@ -111,10 +148,10 @@ public class BoardDisplay {
                     //Draws checkered pattern
                     for (int X = 0; X < 8; X++) {
                         if (white) {
-                            g.setColor(Color.magenta);
+                            g.setColor(boardColour1);
 
                         } else {
-                            g.setColor(Color.PINK);
+                            g.setColor(boardColour2);
                         }
 
                         white = !white;  //flips the flop
