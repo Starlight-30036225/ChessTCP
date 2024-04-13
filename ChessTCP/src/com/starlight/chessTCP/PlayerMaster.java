@@ -64,8 +64,6 @@ public class PlayerMaster implements GameHandler, UIHandler{
         board.frame.repaint();
 
     }
-
-    @Override
     public void closeGame(String keepOpen) {
         if (keepOpen.equals("END")){
             board.frame.dispose();
@@ -74,8 +72,6 @@ public class PlayerMaster implements GameHandler, UIHandler{
             board.notifyDisconnect();
         }
     }
-
-    @Override
     public void handleWin(String winner) {
         String dialogue = "";
         if (board.spectator) {
@@ -86,11 +82,13 @@ public class PlayerMaster implements GameHandler, UIHandler{
         }
         board.endGame(dialogue);
     }
-
-    @Override
     public void selectRoom(String roomList) {
+        if (menu!= null) {
+            menu.frame.dispose();
+        }
         menu = new MainMenu(this, roomList);
     }
+
 
     //UIHandler Interface
     public void requestPossibleMoves(String location) {
@@ -103,7 +101,6 @@ public class PlayerMaster implements GameHandler, UIHandler{
         client.sendMessage(PacketHeader.MOVE, pieceLocation + moveLocation);   //Sends selected piece and move in 1 string
         requestNewPossibles = true;
     }
-    @Override
     public void closeGame(boolean naturalEnd) {
         client.sendMessage(PacketHeader.DISCONNECT, "NULL");
         client = null;
@@ -111,8 +108,6 @@ public class PlayerMaster implements GameHandler, UIHandler{
     public void sendPromotion(char piece){
         client.sendMessage(PacketHeader.PROMOTION, String.valueOf(piece));   //Sends selected piece and move in 1 string
     }
-
-
 
     public void sendRoom(int selection, String password) {
         client.sendMessage(PacketHeader.ROOM_INFO, selection - 1 + password);

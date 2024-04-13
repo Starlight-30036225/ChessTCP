@@ -119,9 +119,9 @@ public class GameServer extends Server{
 
         checkGameOver(room);    //This could be the final move, check
     }
-    void sendRoomInfo(ConnectionHandler handler) {
+    void sendRoomInfo(ConnectionHandler handler, boolean retry) {
         List<GameMaster> allRooms = roomMap.values().stream().distinct().toList(); //Creates a non-repeating list of all rooms, probably broken
-        String infoString = "";
+        String infoString = retry? "Y":"N";
 
         for (GameMaster tempRoom:
                 allRooms) {
@@ -141,14 +141,17 @@ public class GameServer extends Server{
 
         int selection = roomSelection.charAt(0) - 48; //gets numerical value, not ascii
 
-        if (roomSelection.length() > 1) //If string is longer than 1 char, there is a password attached.
-        {password = roomSelection.substring(1);}
-
-        if(selection == -1){    //player is requesting an updated list (Not yet implemented)
-            sendRoomInfo(handler);
+        if(selection == -3){    //player is requesting an updated list (Not yet implemented)
+            sendRoomInfo(handler, false);
             return;
         }
-        else if (selection == 0){    //Client is requesting a new room
+
+        if (roomSelection.length() > 1) //If string is longer than 1 char, there is a password attached.
+        {
+            password = roomSelection.substring(1);
+        }
+
+        if (selection == 0){    //Client is requesting a new room
             room = new GameMaster();
             room.password = password;   //If this is empty, it is ignored henceforth
         }
@@ -156,7 +159,7 @@ public class GameServer extends Server{
             room = roomMap.values().stream().distinct().toList().get(selection - 1);
             if (!Objects.equals(room.password, password)){
                 handler.sendMessage(PacketHeader.MISC, "Incorrect Password.");
-                sendRoomInfo(handler);
+                sendRoomInfo(handler, true);
                 return;
             }
         }
@@ -218,7 +221,7 @@ public class GameServer extends Server{
     }
     @Override
     protected void sendWelcomeMessage(ConnectionHandler handler) {
-        sendRoomInfo(handler);
+        sendRoomInfo(handler, false);
     }
 
 }

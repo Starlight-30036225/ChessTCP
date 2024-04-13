@@ -17,9 +17,16 @@ public class MainMenu {
     JTabbedPane tabbedPane;
     public int colourSelection = 0;
     public int spriteSelection = 0;
+    boolean waiting = false;
 
     public MainMenu(PlayerMaster master, String roomList) {
-        this.roomList = roomList;
+        if (roomList.charAt(0) == 'Y') {
+            JOptionPane.showConfirmDialog(frame,
+                    "Incorrect Password","",
+                    JOptionPane.DEFAULT_OPTION);
+
+        }
+        this.roomList = roomList.substring(1);
         this.master = master;
         frame = getFrame();
         //paintFrame();
@@ -43,8 +50,8 @@ public class MainMenu {
         frame.add(tabbedPane);
         return frame;
     }
-    public void waiting() {
-
+    public void waitingWindow() {
+        waiting = true;
         frame.remove(tabbedPane);
         frame.setBounds(200, 100, 300, 400);
         frame.revalidate();
@@ -60,6 +67,18 @@ public class MainMenu {
         frame.revalidate();
         frame.add(waitingPanel);
         //frame.repaint();
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                if (JOptionPane.showConfirmDialog(frame,
+                        "Quit waiting?", "Quit?",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+                    master.closeGame(false);
+                    System.exit(0);
+                }
+            }
+        });
     }
     public JScrollPane createRoomTab() {
             JPanel panel = new JPanel();
@@ -87,10 +106,17 @@ public class MainMenu {
                     panel.add(Box.createVerticalStrut(15)); // Add some vertical spacing
                 }
             }
+        panel.add(Box.createVerticalStrut(15)); // Add some vertical spacing
+        JButton Refresh = createButton("Refresh rooms", -1, false, "NULL");
+        panel.add(Refresh);
+
+        createNewRoom.setVisible(true);
+
+
+
             return scrollPane;
         }
-
-
+        
     private JButton createButton(String text, int returnval, boolean locked, String dialogueText) {
         JButton returnButton = new JButton(text);
         returnButton.setBorder(BorderFactory.createSoftBevelBorder(0));
@@ -108,7 +134,7 @@ public class MainMenu {
                     password = JOptionPane.showInputDialog(dialogueText);
                 }
                 master.sendRoom(returnval, password);
-                waiting();
+                waitingWindow();
             }
         });
         return returnButton;

@@ -9,4 +9,9 @@ public interface UIHandler {
     void requestMove(String pieceLocation, String moveLocation);
 
     void closeGame(boolean naturalEnd);
+
+
+    //For main menu, not game GUI
+    void sendRoom(int selection, String password);
+
 }
