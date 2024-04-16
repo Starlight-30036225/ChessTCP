@@ -16,6 +16,6 @@ public interface GameHandler {
 
     void handleWin(String losingPlayer);
 
-    void selectRoom(String roomList);
+    void HandleRoomInfo(String roomList);
 }
 

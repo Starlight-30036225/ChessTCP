@@ -20,20 +20,19 @@ public class MainMenu {
     boolean waiting = false;
 
     public MainMenu(PlayerMaster master, String roomList) {
-        if (roomList.charAt(0) == 'Y') {
+        if (roomList.startsWith("RETRY")) {
             JOptionPane.showConfirmDialog(frame,
                     "Incorrect Password","",
                     JOptionPane.DEFAULT_OPTION);
 
         }
-        this.roomList = roomList.substring(1);
+        this.roomList = roomList.substring(5);      //Removes the first notifier (FIRST/RETRY)
         this.master = master;
         frame = getFrame();
         //paintFrame();
         frame.setVisible(true);
 
     }
-
 
     private JFrame getFrame() {
         JFrame frame = new JFrame();
@@ -97,10 +96,12 @@ public class MainMenu {
             panel.add(Box.createVerticalStrut(15)); // Add some vertical spacing
             panel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
-            if (!roomList.equals("...")) {
-                for (int i = 0; i < roomList.length() / 3; i++) {
-                    boolean requiresPassword = (roomList.charAt((i * 3) + 2) == 'Y');
-                    JButton newButton = createButton((i + 2) + ": " + roomList.charAt(i * 3) + " Connected - " +
+            if (!roomList.isEmpty()) {
+                for (int i = 0; i < roomList.length() / 6; i++) {
+                    int players = roomList.charAt(i * 6) - 48;
+                    int spectators = roomList.charAt((i * 6) + 1)- 48;
+                    boolean requiresPassword = roomList.substring(((i * 6) + 2), (i * 6) + 6).equals("LOCK");
+                    JButton newButton = createButton(players + "Players - " + spectators + " watching - " +
                             (requiresPassword? "Locked" : "Open"), i + 2, requiresPassword, "Enter password");
                     panel.add(newButton);
                     panel.add(Box.createVerticalStrut(15)); // Add some vertical spacing
@@ -116,8 +117,8 @@ public class MainMenu {
 
             return scrollPane;
         }
-        
-    private JButton createButton(String text, int returnval, boolean locked, String dialogueText) {
+
+    private JButton createButton(String text, int returnVal, boolean locked, String dialogueText) {
         JButton returnButton = new JButton(text);
         returnButton.setBorder(BorderFactory.createSoftBevelBorder(0));
         returnButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -133,7 +134,7 @@ public class MainMenu {
                 if (locked) {
                     password = JOptionPane.showInputDialog(dialogueText);
                 }
-                master.sendRoom(returnval, password);
+                master.sendRoom(returnVal, password);
                 waitingWindow();
             }
         });

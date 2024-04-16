@@ -82,7 +82,7 @@ public class PlayerMaster implements GameHandler, UIHandler{
         }
         board.endGame(dialogue);
     }
-    public void selectRoom(String roomList) {
+    public void HandleRoomInfo(String roomList) {
         if (menu!= null) {
             menu.frame.dispose();
         }

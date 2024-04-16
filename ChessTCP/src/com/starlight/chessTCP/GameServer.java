@@ -121,16 +121,20 @@ public class GameServer extends Server{
     }
     void sendRoomInfo(ConnectionHandler handler, boolean retry) {
         List<GameMaster> allRooms = roomMap.values().stream().distinct().toList(); //Creates a non-repeating list of all rooms, probably broken
-        String infoString = retry? "Y":"N";
-
+        String infoString = retry? "RETRY":"FIRST";
+        //(format is RETRY12OPEN for a room that has one spectator, two players and no password)
         for (GameMaster tempRoom:
                 allRooms) {
             String temp;
-            temp = tempRoom.connections + "_" + (Objects.equals(tempRoom.password, "") ? 'N' : 'Y');
+            if (tempRoom.connections == 9) {continue;} //room is full
+
+            int spectators = tempRoom.connections - ((tempRoom.blackPlayer == null? 0 : 1) + (tempRoom.whitePlayer == null? 0 : 1));  //number of clients - players
+
+            temp = (tempRoom.connections - spectators) + String.valueOf(spectators) + (Objects.equals(tempRoom.password, "") ? "OPEN" : "LOCK");
+
             infoString += temp;
         }
 
-        if (infoString.equals("")) {infoString = "...";}    //Don't want to risk sending an empty packet.
 
         handler.sendMessage(PacketHeader.ROOM_INFO, infoString);
     }
@@ -238,8 +242,8 @@ class GameMaster {
     String password = "";
     public GameMaster(){
         connections = 0;
-        //loadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-        loadMapFromNotation("k7/6RP/8/8/8/8/p7/7K");
+        loadMapFromNotation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+        //loadMapFromNotation("k7/6RP/8/8/8/8/p7/7K");
     }
 
     private void loadMapFromNotation(String notation) {
