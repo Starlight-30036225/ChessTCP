@@ -10,7 +10,7 @@ import java.io.*;
 
 public class MainMenu {
 
-    PlayerMaster master;
+    UIHandler master;
     String roomList;
 
     JFrame frame;
@@ -19,7 +19,7 @@ public class MainMenu {
     public int spriteSelection = 0;
     boolean waiting = false;
 
-    public MainMenu(PlayerMaster master, String roomList) {
+    public MainMenu(UIHandler master, String roomList) {
         if (roomList.startsWith("RETRY")) {
             JOptionPane.showConfirmDialog(frame,
                     "Incorrect Password","",
@@ -56,10 +56,12 @@ public class MainMenu {
         frame.revalidate();
         frame.repaint();
         JPanel waitingPanel = new JPanel();
-        waitingPanel.setBackground(Color.gray);
+        waitingPanel.setBackground(Color.white);
         JLabel colourLabel = new JLabel("Waiting for opponent");
         colourLabel.setHorizontalAlignment(JLabel.CENTER);
         colourLabel.setBounds(0,0,150,64);
+        colourLabel.setForeground(Color.CYAN);
+        colourLabel.setFont(new Font(Font.SERIF, Font.BOLD, 16));
         waitingPanel.add(colourLabel);
 
 
@@ -81,7 +83,7 @@ public class MainMenu {
     }
     public JScrollPane createRoomTab() {
             JPanel panel = new JPanel();
-            panel.setBackground(Color.gray);
+            panel.setBackground(Color.white);
             panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Setting BoxLayout to vertically align components
 
             // Create a vertical scrollbar
@@ -122,10 +124,9 @@ public class MainMenu {
         JButton returnButton = new JButton(text);
         returnButton.setBorder(BorderFactory.createSoftBevelBorder(0));
         returnButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        returnButton.setBackground(Color.MAGENTA);
-        returnButton.setForeground(Color.GREEN);
+        returnButton.setBackground(Color.CYAN);
+        returnButton.setForeground(Color.BLACK);
         returnButton.setFocusable(false);
-        returnButton.setPreferredSize(new Dimension(180,300));
         returnButton.setFont(new Font(Font.SERIF, Font.BOLD, 16));
         returnButton.addActionListener(new ActionListener() {
             @Override
@@ -151,30 +152,39 @@ public class MainMenu {
 
 
         public SettingsTab() {
-            this.setBackground(Color.gray);
+            this.setBackground(Color.white);
             readFile();
             setLayout(null); // Set layout manager to null for absolute positioning
             String[] colourFormats = {"Monochrome", "Pink", "Evil", "Ugly", "New"};
-            String[] spriteFormats = {"Default", "Norights", "ComedyIsDead"};
+            String[] spriteFormats = {"Default", "Norights", "ComedyIsDead", "Zombies", "PlantsVSZombies"};
 
 
             JLabel colourLabel = new JLabel("Select Grid Colours");
             colourLabel.setHorizontalAlignment(JLabel.CENTER);
-            colourLabel.setBounds(40,10,180,40);
+            colourLabel.setBounds(40,10,200,40);
+            colourLabel.setFont(new Font(Font.SERIF, Font.BOLD, 16));
+            colourLabel.setForeground(Color.BLACK);
 
             JComboBox<String> colourSelectionBox = new JComboBox<>(colourFormats);
             colourSelectionBox.setSelectedIndex(colourSelection);
             colourSelectionBox.setBounds(40,40,200,25);
             colourSelectionBox.addActionListener(e -> updateSquareColors(colourSelectionBox.getSelectedIndex()));
+            colourSelectionBox.setForeground(Color.BLACK);
+            colourSelectionBox.setBackground(Color.CYAN);
+
 
             JLabel spriteLabel = new JLabel("Select Sprite Sheet");
             spriteLabel.setBounds(40,90,200,40);
             spriteLabel.setHorizontalAlignment(JLabel.CENTER);
+            spriteLabel.setFont(new Font(Font.SERIF, Font.BOLD, 16));
+            spriteLabel.setForeground(Color.BLACK);
 
             JComboBox<String> spriteSelectionBox = new JComboBox<>(spriteFormats);
             spriteSelectionBox.setBounds(40,120,200,25);
             spriteSelectionBox.setSelectedIndex(spriteSelection);
             spriteSelectionBox.addActionListener(e -> updateSpriteSheet(spriteSelectionBox.getSelectedIndex()));
+            spriteSelectionBox.setForeground(Color.BLACK);
+            spriteSelectionBox.setBackground(Color.CYAN);
 
 
             gridSquareOne = new JPanel();
@@ -290,6 +300,8 @@ public class MainMenu {
             String fileString = switch (selectedIndex) {
                 case 1 -> "chess.png";
                 case 2-> "chess3.png";
+                case 3 -> "chess4.png";
+                case 4-> "chess5.png";
                 default -> "chess2.png";
             };
 

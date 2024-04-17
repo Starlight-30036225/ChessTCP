@@ -52,6 +52,8 @@ public class BoardDisplay {
         spriteFile = switch (spriteSelection) {
             case 1 -> "chess.png";
             case 2-> "chess3.png";
+            case 3-> "chess4.png";
+            case 4-> "chess5.png";
             default -> "chess2.png";
         };
 

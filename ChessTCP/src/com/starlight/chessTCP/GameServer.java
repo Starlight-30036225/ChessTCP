@@ -40,25 +40,7 @@ public class GameServer extends Server{
                 (room.white? room.whitePlayer :room.blackPlayer)) {return;}     //This move was requested by a spectator, ignore.
 
 
-        String Composite = handler.readNextString();
-
-        //gets the start location of the move/piece location
-        int pieceX = Character.getNumericValue(Composite.charAt(0));
-        int pieceY = Character.getNumericValue(Composite.charAt(1));
-
-        if (room.board[pieceX][pieceY] == null ||
-                (room.board[pieceX][pieceY].white != room.white)) {return;} //Piece is invalid or wrong colour
-
-        //gets the end location of the move
-        int moveX = Character.getNumericValue(Composite.charAt(2));
-        int moveY = Character.getNumericValue(Composite.charAt(3));
-
-        if (!room.board[pieceX][pieceY].move(room.board, moveX+ String.valueOf(moveY))) {return;}   //move failed, exit here
-
-        //Check if moved piece is a pawn valid for promotion
-        if (checkPromotion(handler, room, moveX, moveY)) return;    //A pawn is waiting to be promoted, exit here so turn doesnt change
-
-        room.white = !room.white;   //flips the current players turn
+        if (!room.makeMove(handler)) return;
 
         //Update all clients of the move
         clients.stream()
@@ -69,18 +51,6 @@ public class GameServer extends Server{
         checkGameOver(room);
     }
 
-    private static boolean checkPromotion(ConnectionHandler handler, GameMaster room, int moveX, int moveY) {
-        if (room.board[moveX][moveY].getClass() == Pawn.class) {    //Piece is pawn
-            Pawn p = (Pawn) room.board[moveX][moveY];
-
-            if (((p.direction + p.y > 7) || (p.direction + p.y) < 0)) { //Piece is at edge of board
-                room.promotion = p;
-                handler.sendMessage(PacketHeader.PROMOTION,"null");
-                return true;
-            }
-        }
-        return false;
-    }
 
     private void checkGameOver(GameMaster room) {
         String winner = room.checkGameState();
@@ -162,7 +132,6 @@ public class GameServer extends Server{
         else{   //Player is attempting to join an existing room
             room = roomMap.values().stream().distinct().toList().get(selection - 1);
             if (!Objects.equals(room.password, password)){
-                handler.sendMessage(PacketHeader.MISC, "Incorrect Password.");
                 sendRoomInfo(handler, true);
                 return;
             }
@@ -349,5 +318,58 @@ class GameMaster {
             return "WHITE";
         }
         return "";
+    }
+
+    public boolean makeMove(Server.ConnectionHandler handler) {
+        String Composite = handler.readNextString();
+
+        //gets the start location of the move/piece location
+        int pieceX = Character.getNumericValue(Composite.charAt(0));
+        int pieceY = Character.getNumericValue(Composite.charAt(1));
+
+        if (board[pieceX][pieceY] == null ||
+                (board[pieceX][pieceY].white != white)) {
+            return false;
+        } //Piece is invalid or wrong colour
+
+        //gets the end location of the move
+        int moveX = Character.getNumericValue(Composite.charAt(2));
+        int moveY = Character.getNumericValue(Composite.charAt(3));
+
+        if (!board[pieceX][pieceY].move(board, moveX+ String.valueOf(moveY))) {
+            return false;
+        }   //move failed, exit here
+        updatePawns();
+        //Check if moved piece is a pawn valid for promotion
+        if (checkPromotion(handler, moveX, moveY)) return true;
+
+
+        white = !white;   //flips the current players turn
+        return true;
+    }
+
+    private boolean checkPromotion(Server.ConnectionHandler handler, int moveX, int moveY) {
+        if (board[moveX][moveY].getClass() == Pawn.class) {    //Piece is pawn
+            Pawn p = (Pawn) board[moveX][moveY];
+
+            if (((p.direction + p.y > 7) || (p.direction + p.y) < 0)) { //Piece is at edge of board
+                promotion = p;
+                handler.sendMessage(PacketHeader.PROMOTION,"NULL");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void updatePawns() {
+        for(Piece[] row:
+        board){
+            for (Piece piece:
+            row) {
+                if ((piece != null && piece.getClass() == Pawn.class) && piece.white != white) {
+                    ((Pawn)piece).vulnerable = false;
+                }
+            }
+        }
     }
 }

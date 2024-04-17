@@ -105,13 +105,13 @@ public abstract class Server implements Runnable {
             out.println(message);
         }
 
-        public void receivePacketHeader() {
+        void receivePacketHeader() {
             try {
                 String packetString = readNextString();
                 handlePacket(this, PacketHeader.valueOf(packetString));
 
             } catch (Exception e) {
-                //System.out.println(e);
+                System.out.println(e);
             }
 
         }

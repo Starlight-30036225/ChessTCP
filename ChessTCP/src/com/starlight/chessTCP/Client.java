@@ -74,5 +74,5 @@ public abstract class Client implements Runnable {
     }
 
 
-    protected abstract void handlePacket(PacketHeader packetHeader);
+    protected abstract void handlePacket(PacketHeader header);
 }

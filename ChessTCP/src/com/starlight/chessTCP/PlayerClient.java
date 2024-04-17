@@ -13,9 +13,9 @@ public class PlayerClient extends Client{
         this.master = Master;
     }
     @Override
-    protected void handlePacket(PacketHeader packetHeader) {
-        System.out.println(packetHeader);
-        switch (packetHeader) {
+    protected void handlePacket(PacketHeader header) {
+        System.out.println(header);
+        switch (header) {
             case WELCOME -> master.receiveWelcomePack(readNextString());
 
             case BOARD_STATE -> master.receiveBoardStatus(readNextString());
@@ -23,8 +23,6 @@ public class PlayerClient extends Client{
             case POSSIBLE_MOVES -> separateMoveList();
 
             case ROOM_INFO -> master.HandleRoomInfo(readNextString());
-
-            case MISC -> System.out.println(readNextString());
 
             case PROMOTION -> {
                 readNextString(); //Clear buffer
