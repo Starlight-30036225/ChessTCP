@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
+
 public class MainMenu {
 
     UIHandler master;
@@ -155,8 +156,8 @@ public class MainMenu {
             this.setBackground(Color.white);
             readFile();
             setLayout(null); // Set layout manager to null for absolute positioning
-            String[] colourFormats = {"Monochrome", "Pink", "Evil", "Ugly", "New"};
-            String[] spriteFormats = {"Default", "Norights", "ComedyIsDead", "Zombies", "PlantsVSZombies"};
+            String[] colourFormats = {"Monochrome", "Pink", "Swampy"};
+            String[] spriteFormats = {"Default", "ComedyIsDead"};
 
 
             JLabel colourLabel = new JLabel("Select Grid Colours");
@@ -222,74 +223,43 @@ public class MainMenu {
         }
 
         private void readFile() {
-            File file = new File("preferences.txt");
-            try{
-                if (!file.exists()) {
-                    // If the file doesn't exist, create it
-                    if (file.createNewFile()) {throw new RuntimeException("Couldnt create file");}
-                    // Write to the file
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                    String s = colourSelection + "\n" + spriteSelection;
-                    writer.write(s);
-
-                    writer.close();
-                } else {
-                    BufferedReader br = new BufferedReader(new FileReader(file));
-                    colourSelection = Integer.parseInt(br.readLine());
-                    spriteSelection = Integer.parseInt(br.readLine());
-                    br.close();
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            String FILE_PATH = "/preferences.txt";
+            try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+                colourSelection = Integer.parseInt(reader.readLine());
+                spriteSelection = Integer.parseInt(reader.readLine());
+                System.out.println(colourSelection);
+                System.out.println(spriteSelection);
+            }catch (Exception e) {
+                e.printStackTrace();
             }
         }
         private void updateFile() {
-            File file = new File("preferences.txt");
-            try{
-                if (!file.exists()) {
-                    if (file.createNewFile()) {throw new RuntimeException("Couldnt create file");}
-                    // Write to the file
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                    String s = colourSelection + "\n" + spriteSelection;
-                    writer.write(s);
-                    writer.close();
-                }
-                FileWriter writer = new FileWriter(file);
-                BufferedWriter bufferedWriter = new BufferedWriter(writer);
-                String s = colourSelection + "\n" + spriteSelection;
-                bufferedWriter.write(s);
-                bufferedWriter.close();
-
-            } catch (IOException e) {
+            String FILE_PATH = "/preferences.txt";
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
+                writer.write(String.valueOf(colourSelection));
+                writer.newLine();
+                writer.write(String.valueOf(spriteSelection));
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         private void updateSquareColors(int selectedIndex) {
             colourSelection = selectedIndex;
             switch (selectedIndex) {
-                case 0 -> { // Monochrome
-                    gridSquareOne.setBackground(Color.BLACK);
-                    gridSquareTwo.setBackground(Color.WHITE);
-                }
+
                 case 1 -> { // Pink
                     gridSquareOne.setBackground(Color.PINK);
                     gridSquareTwo.setBackground(Color.MAGENTA);
                 }
-                case 2 -> { // Evil
-                    gridSquareOne.setBackground(Color.BLACK);
-                    gridSquareTwo.setBackground(Color.RED);
+                case 2 -> { // Swampy
+                    gridSquareOne.setBackground(new Color(55, 234, 55));
+                    gridSquareTwo.setBackground(new Color(62, 75, 3));
                 }
-                case 3 -> { // Ugly
-                    gridSquareOne.setBackground(Color.GREEN);
-                    gridSquareTwo.setBackground(Color.YELLOW);
-                }
-                case 4 -> { // New
-                    gridSquareOne.setBackground(Color.BLUE);
-                    gridSquareTwo.setBackground(Color.ORANGE);
-                }
-                default -> {
+
+                default -> { // Monochrome
+                    gridSquareOne.setBackground(new Color(65, 64, 64));
+                    gridSquareTwo.setBackground(Color.WHITE);
                 }
             }
             updateFile();
@@ -298,19 +268,17 @@ public class MainMenu {
         private void updateSpriteSheet(int selectedIndex) {
             spriteSelection = selectedIndex;
             String fileString = switch (selectedIndex) {
-                case 1 -> "chess.png";
-                case 2-> "chess3.png";
-                case 3 -> "chess4.png";
-                case 4-> "chess5.png";
-                default -> "chess2.png";
+                case 1 -> "/chess3.png";
+                default -> "/chess2.png";
             };
 
-
+            System.out.println(fileString);
             //gets sprite sheet
             BufferedImage baseImage;
+            InputStream inputStream = getClass().getResourceAsStream(fileString);
             try {
-                baseImage = ImageIO.read(new File("src/Resources/" + fileString));
-            } catch (IOException e) {
+                baseImage = ImageIO.read(inputStream);
+            } catch (Exception e) {
                 System.out.println("Couldn't find image");
                 throw new RuntimeException(e);
             }

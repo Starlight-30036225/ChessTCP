@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Client:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Client_jar</output-path>
+    <root id="archive" name="ChessTCP.jar">
+      <element id="module-output" name="ChessTCP" />
+      <element id="file-copy" path="$PROJECT_DIR$/res/images/chess2.png" />
+      <element id="file-copy" path="$PROJECT_DIR$/res/images/chess3.png" />
+    </root>
+  </artifact>
+</component>

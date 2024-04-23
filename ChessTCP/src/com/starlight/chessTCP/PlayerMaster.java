@@ -1,9 +1,11 @@
 package com.starlight.chessTCP;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.security.MessageDigest;
 
 public class PlayerMaster implements GameHandler, UIHandler{
 
@@ -16,7 +18,7 @@ public class PlayerMaster implements GameHandler, UIHandler{
 
     public PlayerMaster() {
         ExecutorService pool = Executors.newCachedThreadPool();
-        client = new PlayerClient("127.0.0.1", 9999, this);
+        client = new PlayerClient("127.0.0.1", 8201, this);
         pool.execute(client);
 
         board = new BoardDisplay(false, this);
@@ -110,7 +112,17 @@ public class PlayerMaster implements GameHandler, UIHandler{
     }
 
     public void sendRoom(int selection, String password) {
-        client.sendMessage(PacketHeader.ROOM_INFO, selection - 1 + password);
+
+        String Hash = password;
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(password.getBytes());
+            Hash = new String(messageDigest.digest());
+        } catch (Exception ignored) {}
+
+
+
+        client.sendMessage(PacketHeader.ROOM_INFO, selection - 1 + Hash);
 
     }
 

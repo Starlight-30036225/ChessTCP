@@ -9,6 +9,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,11 +51,8 @@ public class BoardDisplay {
 
     public void recievePlayerPreferences(int colourSelection, int spriteSelection) {
         spriteFile = switch (spriteSelection) {
-            case 1 -> "chess.png";
-            case 2-> "chess3.png";
-            case 3-> "chess4.png";
-            case 4-> "chess5.png";
-            default -> "chess2.png";
+            case 1-> "/chess3.png";
+            default -> "/chess2.png";
         };
 
         switch (colourSelection) {
@@ -62,20 +60,12 @@ public class BoardDisplay {
                 boardColour1 = Color.PINK;
                 boardColour2 = Color.magenta;
             }
-            case 2 -> { // Evil
-                boardColour1 = Color.BLACK;
-                boardColour2 = Color.RED;
-            }
-            case 3 -> { // Ugly
-                boardColour1 = Color.GREEN;
-                boardColour2 = Color.YELLOW;
-            }
-            case 4 -> { // New
-                boardColour1 = Color.BLUE;
-                boardColour2 = Color.ORANGE;
+            case 2 -> { // Swampy
+                boardColour1 = new Color(55, 234, 55);;
+                boardColour2 = new Color(62, 75, 3);
             }
             default -> {
-                boardColour1 = Color.BLACK;
+                boardColour1 = new Color(65, 64, 64);
                 boardColour2 = Color.WHITE;
             }
         }
@@ -98,7 +88,8 @@ public class BoardDisplay {
         BufferedImage baseImage;
         //gets sprite sheet
         try {
-            baseImage = ImageIO.read(new File("src/Resources/" + spriteFile));
+            InputStream inputStream = getClass().getResourceAsStream(spriteFile);
+            baseImage = ImageIO.read(inputStream);
         } catch (IOException e) {
             System.out.println("Couldn't find image");
             throw new RuntimeException(e);

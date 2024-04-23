@@ -82,6 +82,9 @@ public abstract class Server implements Runnable {
 
                 sendWelcomeMessage(this);
                 while (!done) {
+                    if(client.isClosed()){
+                        throw new RuntimeException("Client disconnected");
+                    }
                     receivePacketHeader();
                 }
             } catch (Exception e) {
@@ -110,8 +113,8 @@ public abstract class Server implements Runnable {
                 String packetString = readNextString();
                 handlePacket(this, PacketHeader.valueOf(packetString));
 
-            } catch (Exception e) {
-                System.out.println(e);
+            } catch (Exception ignored) {
+                //this.localShutdown();
             }
 
         }
@@ -129,7 +132,7 @@ public abstract class Server implements Runnable {
     }
 
     public static void main(String[] args) {
-        GameServer server = new GameServer(9999);
+        GameServer server = new GameServer(8201);
         server.run();
 
     }
