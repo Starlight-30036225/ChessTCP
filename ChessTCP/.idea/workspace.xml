@@ -5,7 +5,6 @@
   </component>
   <component name="ArtifactsWorkspaceSettings">
     <artifacts-to-build>
-      <artifact name="Client:jar" />
       <artifact name="Server:jar" />
     </artifacts-to-build>
   </component>
@@ -14,14 +13,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="174d0ed8-668b-411d-8b4e-0259eb6b5687" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/artifacts/Client_jar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/artifacts/Client_jar.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/artifacts/Server_jar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/artifacts/Server_jar.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChessTCP.iml" beforeDir="false" afterPath="$PROJECT_DIR$/ChessTCP.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/preferences.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Resources/chess2.png" beforeDir="false" afterPath="$PROJECT_DIR$/res/images/chess2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Resources/chess3.png" beforeDir="false" afterPath="$PROJECT_DIR$/res/images/chess3.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/res/images/chess2.png" beforeDir="false" afterPath="$PROJECT_DIR$/res/chess2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/res/images/chess3.png" beforeDir="false" afterPath="$PROJECT_DIR$/res/chess3.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/res/textFiles/preferences.txt" beforeDir="false" afterPath="$PROJECT_DIR$/res/preferences.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/BoardDisplay.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/MainMenu.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/MainMenu.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/starlight/chessTCP/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/starlight/chessTCP/Server.java" afterDir="false" />
     </list>
@@ -47,26 +50,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "D:/Documents/Uni/ChessTCP/ChessTCP/ChessTCP/res/images/chess3.png",
-    "project.structure.last.edited": "Artifacts",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "project.kotlinCompiler"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Documents/Uni/ChessTCP/ChessTCP/ChessTCP/res/images/chess3.png&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.kotlinCompiler&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Documents\Uni\ChessTCP\ChessTCP\ChessTCP\res" />
       <recent name="D:\Documents\Uni\ChessTCP\ChessTCP\ChessTCP\res\textFiles" />
       <recent name="D:\Documents\Uni\ChessTCP\ChessTCP\ChessTCP\res\images" />
-      <recent name="D:\Documents\Uni\ChessTCP\ChessTCP\ChessTCP\res" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.ServerRuntime">
+  <component name="RunManager" selected="Application.ClientRuntime">
     <configuration name="ClientRuntime-2" type="Application" factoryName="Application" singleton="false">
       <option name="MAIN_CLASS_NAME" value="com.starlight.chessTCP.Client" />
       <module name="ChessTCP" />
@@ -135,9 +138,14 @@
           <option name="timeStamp" value="113" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/MainMenu.java</url>
-          <line>228</line>
-          <option name="timeStamp" value="146" />
+          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/GameServer.java</url>
+          <line>232</line>
+          <option name="timeStamp" value="148" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/starlight/chessTCP/PlayerMaster.java</url>
+          <line>70</line>
+          <option name="timeStamp" value="151" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

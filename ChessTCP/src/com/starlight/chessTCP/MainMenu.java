@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.Objects;
 
 
 public class MainMenu {
@@ -141,6 +142,13 @@ public class MainMenu {
             }
         });
         return returnButton;
+    }
+
+    public void notifyShutdown() {
+        JOptionPane.showConfirmDialog(frame,
+                ("The server has closed, please exit."), "Quit.",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
 

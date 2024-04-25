@@ -13,6 +13,7 @@ public class PlayerMaster implements GameHandler, UIHandler{
     PlayerClient client;
     boolean requestNewPossibles = true;
     boolean started = false;
+    public boolean done = false;
 
     MainMenu menu;
 
@@ -68,7 +69,14 @@ public class PlayerMaster implements GameHandler, UIHandler{
     }
     public void closeGame(String keepOpen) {
         if (keepOpen.equals("END")){
-            board.frame.dispose();
+            if (board != null) {
+                board.notifyShutdown();
+            }
+            if (menu != null) {
+                menu.notifyShutdown();
+            }
+            client.shutdown();
+            done = true;
         }
         else {
             board.notifyDisconnect();
@@ -105,7 +113,8 @@ public class PlayerMaster implements GameHandler, UIHandler{
     }
     public void closeGame(boolean naturalEnd) {
         client.sendMessage(PacketHeader.DISCONNECT, "NULL");
-        client = null;
+        client.shutdown();
+        done = true;
     }
     public void sendPromotion(char piece){
         client.sendMessage(PacketHeader.PROMOTION, String.valueOf(piece));   //Sends selected piece and move in 1 string
@@ -126,7 +135,12 @@ public class PlayerMaster implements GameHandler, UIHandler{
 
     }
 
-    public static void main(String[] args){new PlayerMaster();}
+    public static void main(String[] args) {
+        PlayerMaster master = new PlayerMaster();
+        while (!master.done) {
+        }
+        System.exit(1);
+    }
 }
 
 

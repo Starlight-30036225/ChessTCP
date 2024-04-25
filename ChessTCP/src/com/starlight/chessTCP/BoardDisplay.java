@@ -424,6 +424,13 @@ public class BoardDisplay {
             master.closeGame(false);
             System.exit(0);
     }
+
+    public void notifyShutdown() {
+        JOptionPane.showConfirmDialog(frame,
+                ("The server has closed, please exit."), "Quit.",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE);
+    }
 }
 
 class SimplePiece{

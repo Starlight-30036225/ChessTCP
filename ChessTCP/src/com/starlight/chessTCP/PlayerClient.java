@@ -77,6 +77,7 @@ public class PlayerClient extends Client{
         }
     }
 
+
     private void separateMoveList() {
         //move list is received as one long string
         List<String> moveList = new ArrayList<>();

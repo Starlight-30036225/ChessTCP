@@ -29,6 +29,9 @@ public abstract class Client implements Runnable {
 
             while (!done) {
                 receivePacketHeader();
+                if (boss.isClosed()){
+                    done = true;
+                }
             }
             shutdown();
         } catch (Exception e) {

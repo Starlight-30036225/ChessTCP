@@ -18,9 +18,11 @@ public abstract class Server implements Runnable {
     private final int port;
 
     public Server(int port) {
+        System.out.println("checkpoint 1");
         this.port = port;
         clients = new ArrayList<>();
         done = false;
+        System.out.println("checkpoint 1");
     }
 
     public void run() {
@@ -38,7 +40,7 @@ public abstract class Server implements Runnable {
                 pool.execute(handler);  //Places new connection handler into thread pool to execute separately
             }
         } catch (Exception e) {     //Any errors during this loop will be caught here, shutdown the server and print the error
-            System.out.println(e.getMessage());
+            System.out.println(e);
             this.shutdown();
         }
     }
@@ -47,13 +49,16 @@ public abstract class Server implements Runnable {
     public void shutdown() {    //Something has gone wrong or game is over, shutdown Server
         try {
             done = true;
-            if (!boss.isClosed()) {
-                boss.close();
-            }
             for (ConnectionHandler ch : clients) {
                 ch.localShutdown();    //shuts down all attached clients
             }
-        } catch (Exception ignored){}
+            if (!boss.isClosed()) {
+                boss.close();
+            }
+
+        } catch (Exception ignored){
+            System.out.println(ignored);
+        }
     }
 
     public abstract void handlePacket(ConnectionHandler handler, PacketHeader packetHeader);
@@ -121,13 +126,16 @@ public abstract class Server implements Runnable {
 
         public void localShutdown() { //Something has gone wrong or game is over, terminate Client Connection
             try {
-                in.close();
-                out.close();
                 if (!client.isClosed()) {
                     //Tell client its being disconnected here
                     client.close();
                 }
-            } catch (IOException ignored) {}
+                in.close();
+                out.close();
+
+            } catch (IOException e) {
+                System.out.println(e);
+            }
         }
     }
 

@@ -1,12 +1,19 @@
 package com.starlight.chessTCP;
+import javax.swing.*;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class GameServer extends Server{
 
     Map<ConnectionHandler, GameMaster> roomMap; //connects clients to their respective rooms
+    JFrame window;
     public GameServer(int port) {
         super(port);
         roomMap = new HashMap<>();
+        System.out.println("checkpoint 1");
+        window = getFrame();
+        window.setVisible(true);
     }
     @Override
     public void handlePacket(ConnectionHandler handler, PacketHeader packetHeader) {
@@ -50,7 +57,6 @@ public class GameServer extends Server{
 
         checkGameOver(room);
     }
-
 
     private void checkGameOver(GameMaster room) {
         String winner = room.checkGameState();
@@ -197,6 +203,42 @@ public class GameServer extends Server{
         sendRoomInfo(handler, false);
     }
 
+    @Override
+    public void shutdown() {
+        for (ConnectionHandler handler:
+                roomMap.keySet()) {
+            handler.sendMessage(PacketHeader.DISCONNECT, "END");
+        }
+        super.shutdown();
+    }
+
+    private JFrame getFrame() {
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        frame.setBounds(200, 100, 200, 200);
+        frame.setUndecorated(false);
+        GridLayout griddy = new GridLayout();
+        frame.setLayout(griddy);
+        frame.setName("Server");
+        frame.setBackground(Color.LIGHT_GRAY);
+        JLabel label = new JLabel("Server is running");
+        frame.add(label);
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                if (JOptionPane.showConfirmDialog(frame,
+                        "Shutdown Server?.", "Quit?",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+                    shutdown();
+                    frame.dispose();
+                    System.exit(0);
+                }
+            }
+        });
+
+        return frame;
+    }
 }
 
 class GameMaster {
